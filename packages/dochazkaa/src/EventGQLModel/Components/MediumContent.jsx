@@ -32,65 +32,83 @@ import { Link } from "./Link"
 //     )
 // }
 
-// export const MediumContent_ = ({ item, children }) => {
-//     return (
-//         <>
-//             {Object.entries(item).map(([attribute_name, attribute_value]) => {
-//                 // if (attribute_name !== "id") return null
-//                 if (Array.isArray(attribute_value)) return null
-//                 if (typeof attribute_value === "object" && attribute_value !== null) return null
-//                 let attribute_value_result = attribute_value
-//                 // let attribute_value_result = attribute_value
-//                 if (Array.isArray(attribute_value))
-//                     // attribute_value_result = <CardCapsule><Table data={attribute_value} /></CardCapsule>
-//                     return null
-//                 else if (typeof attribute_value === "object" && attribute_value !== null)
-//                     // attribute_value_result = <MediumCard item={attribute_value} />
-//                     return null
-//                 else if (attribute_name === "__typename") {
-//                     /*attribute_value_result = <Link item={attribute_value} />*/
-//                     // console.log("else1", attribute_name, attribute_value)
-//                 }
-//                 if (attribute_name === "id")
-//                     attribute_value_result = <Link item={item}>{item?.id || "Data error"}</Link>
-//                 if (attribute_name === "name")
-//                     attribute_value_result = <Link item={item} />
-//                 // else return null
-//                 if (attribute_value)
-//                     return (
-//                         <Row key={attribute_name}>
-//                             <Col className="col-4"><b>{attribute_name}</b></Col>
-//                             <Col className="col-8">{attribute_value_result}</Col>
-//                         </Row>
-//                     )
-//                 else return null
-//             })}
-//             {Object.entries(item).map(([attribute_name, attribute_value]) => {
-//                 if (attribute_value !== null) return null
-//                 let attribute_value_result = JSON.stringify(attribute_value)
-//                 if (Array.isArray(attribute_value))
-//                     // attribute_value_result = <CardCapsule><Table data={attribute_value} /></CardCapsule>
-//                     return null
-//                 else if (typeof attribute_value === "object" && attribute_value !== null)
-//                     // attribute_value_result = <MediumCard item={attribute_value} />
-//                     return null
-//                 else if (attribute_name === "__typename") {
-//                     /*attribute_value_result = <Link item={attribute_value} />*/
-//                     console.log("else2", attribute_name, attribute_value)
-//                 }
-//                 if (attribute_value)
-//                     return null
-//                 else
-//                     return (
-//                         <Row key={attribute_name}>
-//                             <Col className="col-4"><b>{attribute_name}</b></Col>
-//                             <Col className="col-8">{attribute_value_result}</Col>
-//                         </Row>
-//                     )
-//             })}
-//             {children}
-//         </>
-//     )
-// }
+export const MediumContent = ({ item, children }) => {
+    return (
+         <>
+             {Object.entries(item).map(([attribute_name, attribute_value]) => {
+                 // if (attribute_name !== "id") return null
+                 if (Array.isArray(attribute_value)) return null
+                 if (typeof attribute_value === "object" && attribute_value !== null) return null
+                let attribute_value_result = attribute_value
+                 // let attribute_value_result = attribute_value
+                 if (Array.isArray(attribute_value))
+                     // attribute_value_result = <CardCapsule><Table data={attribute_value} /></CardCapsule>
+                     return null
+                 else if (typeof attribute_value === "object" && attribute_value !== null)
+                     // attribute_value_result = <MediumCard item={attribute_value} />
+                    return null
+                 else if (attribute_name === "__typename") {
+                     /*attribute_value_result = <Link item={attribute_value} />*/
+                     // console.log("else1", attribute_name, attribute_value)
+                 }
+                 if (attribute_name === "id")
+                     attribute_value_result = <Link item={item}>{item?.id || "Data error"}</Link>
+                 if (attribute_name === "name")
+                     attribute_value_result = <Link item={item} />
+                 // else return null
+                 if (attribute_value)
+                     return (
+                         <Row key={attribute_name}>
+                             <Col className="col-4"><b>{attribute_name}</b></Col>
+                             <Col className="col-8">{attribute_value_result}</Col>
+                         </Row>
+                     )
+                 else return null
+             })}
+             {Object.entries(item).map(([attribute_name, attribute_value]) => {
+                 if (attribute_value !== null) return null
+                 let attribute_value_result = JSON.stringify(attribute_value)
+                 if (Array.isArray(attribute_value))
+                     // attribute_value_result = <CardCapsule><Table data={attribute_value} /></CardCapsule>
+                     return null
+                 else if (typeof attribute_value === "object" && attribute_value !== null)
+                     // attribute_value_result = <MediumCard item={attribute_value} />
+                     return null
+                 else if (attribute_name === "__typename") {
+                     /*attribute_value_result = <Link item={attribute_value} />*/
+                     console.log("else2", attribute_name, attribute_value)
+                 }
+                 if (attribute_value)
+                     return null
+                 else
+                     return (
+                         <Row key={attribute_name}>
+                             <Col className="col-4"><b>{attribute_name}</b></Col>
+                             <Col className="col-8">{attribute_value_result}</Col>
+                         </Row>
+                     )
+             })}
+             {children}
+         </>
+     )
+ }
 
-export { MediumContent } from "../../../../_template/src/Base/Components/MediumContent"
+//import { MediumContent as MediumContent_ } from "../../../../_template/src/Base/Components/MediumContent"
+import { Attribute } from "../../../../_template/src/Base/Components/Attribute"
+
+//export const MediumContent = ({ item, children }) => {
+    //return (
+        //<>  
+            //<Attribute name="id">
+                //<Link item={item}>něco</Link>
+            //</Attribute>
+            //<hr/>
+           // {item?.id}{" "}
+           // {item?.order}
+           // <hr/>
+
+          //  <pre>
+           //     JSON.stringify(item, null, 2)
+           // </pre>
+      //  </>)
+//}

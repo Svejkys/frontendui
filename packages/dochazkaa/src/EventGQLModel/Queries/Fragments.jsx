@@ -11,6 +11,10 @@ fragment Link on EventGQLModel {
   rbacobjectId
   name
   nameEn
+  subevents{
+    id
+  }
+  path 
   
   
 }
@@ -33,7 +37,7 @@ fragment Large on EventGQLModel {
 `
 
 const RoleFragmentStr = `
-fragment Role on RoleGQLModel {
+fragment Role on EventGQLModel {
     __typename
     id
     lastchange
