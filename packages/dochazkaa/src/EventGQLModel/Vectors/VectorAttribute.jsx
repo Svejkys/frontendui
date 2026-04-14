@@ -3,14 +3,33 @@ import { Table } from "../Components/Table"
 import { Col } from "../../../../_template/src/Base/Components/Col"
 import { Row } from "../../../../_template/src/Base/Components/Row"
 
+const EmptyVectorMessage = ({ attribute_name }) => {
+    const messages = {
+        subevents: "K tomuto eventu nejsou přiřazeny žádné subeventy.",
+        userInvitations: "K tomuto eventu zatím nejsou evidovány žádné účasti.",
+    }
+
+    return (
+        <div className="p-2 text-muted">
+            {messages[attribute_name] || "Žádné položky nejsou k dispozici."}
+        </div>
+    )
+}
+
 export const VectorAttributeFactory = (attribute_name) => ({ item }) => {
     const attribute_value = item?.[attribute_name] || []
+    const count = attribute_value.length
+
     return (
         <Row key={attribute_name}>
             <Col className="col-2"><b>{attribute_name}</b></Col>
             <Col className="col-10">
-                <CardCapsule item={item}>
-                    <Table data={attribute_value} />
+                <CardCapsule item={item} title={`${attribute_name} [${count}]`}>
+                    {count === 0 ? (
+                        <EmptyVectorMessage attribute_name={attribute_name} />
+                    ) : (
+                        <Table data={attribute_value} />
+                    )}
                 </CardCapsule>
             </Col>
         </Row>
@@ -19,12 +38,18 @@ export const VectorAttributeFactory = (attribute_name) => ({ item }) => {
 
 export const VectorAttribute_ = ({ attribute_name, item }) => {
     const attribute_value = item?.[attribute_name] || []
+    const count = attribute_value.length
+
     return (
         <Row key={attribute_name}>
             <Col className="col-2"><b>{attribute_name}</b></Col>
             <Col className="col-10">
-                <CardCapsule item={item}>
-                    <Table data={attribute_value} />
+                <CardCapsule item={item} title={`${attribute_name} [${count}]`}>
+                    {count === 0 ? (
+                        <EmptyVectorMessage attribute_name={attribute_name} />
+                    ) : (
+                        <Table data={attribute_value} />
+                    )}
                 </CardCapsule>
             </Col>
         </Row>
@@ -33,13 +58,18 @@ export const VectorAttribute_ = ({ attribute_name, item }) => {
 
 export const VectorAttribute = ({ attribute_name, item }) => {
     const attribute_value = item?.[attribute_name] || []
+    const count = attribute_value.length
+
     return (
-        <CardCapsule item={item} title={attribute_name+'[]'}>
-            <Table data={attribute_value} />
+        <CardCapsule item={item} title={`${attribute_name} [${count}]`}>
+            {count === 0 ? (
+                <EmptyVectorMessage attribute_name={attribute_name} />
+            ) : (
+                <Table data={attribute_value} />
+            )}
         </CardCapsule>
     )
 }
-
 
 export const MediumCardVectors = ({ item }) => {
     return (

@@ -80,6 +80,11 @@ const TemplateVectorsAttributeAsyncAction = createAsyncGraphQLAction(
     processVectorAttributeFromGraphQLResult("vectors")
 )
 
+const EmptyVectorMessage = ({ emptyText = "Žádné položky nejsou k dispozici." }) => (
+    <div className="p-2 text-muted">
+        {emptyText}
+    </div>
+)
 
 /**
  * A component for displaying the `vectors` attribute of a template entity.
@@ -118,7 +123,7 @@ export const TemplateVectorsAttribute_old = ({template, filter=Boolean, Visualis
     const { vectors: unfiltered } = template
     if (typeof unfiltered === 'undefined') return null
     const vectors = unfiltered.filter(filter)
-    if (vectors.length === 0) return null
+    if (vectors.length === 0) return <EmptyVectorMessage />
     return (
         <>
             {vectors.map(
@@ -283,9 +288,13 @@ export const TemplateVectorsAttribute = ({
     const { vectors: unfiltered } = template
     if (typeof unfiltered === 'undefined') return null
     const vectors = unfiltered.filter(filter)
-    if (vectors.length === 0) return null
-
-
+    if (vectors.length === 0) {
+        return (
+            <Layout>
+                <EmptyVectorMessage />
+            </Layout>
+        )
+    }
 
     if (infinite) {
         // Pro infinite scroll použijeme komponentu InfiniteScroll

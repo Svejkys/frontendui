@@ -6,17 +6,28 @@ fragment Link on EventGQLModel {
   id
   lastchange
   created
-  createdbyId
-  changedbyId
-  rbacobjectId
   name
   nameEn
-  subevents{
+  startdate
+  enddate
+  valid
+  place
+  path
+  description
+
+  subevents {
+    __typename
+    id
+    name
+    nameEn
+    startdate
+    enddate
+  }
+
+  userInvitations {
+    __typename
     id
   }
-  path 
-  
-  
 }
 `
 
@@ -32,33 +43,7 @@ fragment Medium on EventGQLModel {
 const LargeFragmentStr = `
 fragment Large on EventGQLModel {
   ...Medium
-  
 }
-`
-
-const RoleFragmentStr = `
-fragment Role on EventGQLModel {
-    __typename
-    id
-    lastchange
-    created
-    createdbyId
-    changedbyId
-    rbacobjectId
-    createdby { id __typename }
-    changedby { id __typename }
-    rbacobject { id __typename }
-    valid
-    deputy
-    startdate
-    enddate
-    roletypeId
-    userId
-    groupId
-    roletype { __typename id }
-    user { __typename id fullname }
-    group { __typename id name }
-  }
 `
 
 const RBACFragmentStr = `
@@ -88,12 +73,10 @@ fragment RBRoles on RBACObjectGQLModel {
       }
     }
   }
-}`
+}
+`
 
-export const RoleFragment = createQueryStrLazy(`${RoleFragmentStr}`)
 export const RBACFragment = createQueryStrLazy(`${RBACFragmentStr}`)
-
 export const LinkFragment = createQueryStrLazy(`${LinkFragmentStr}`)
 export const MediumFragment = createQueryStrLazy(`${MediumFragmentStr}`, LinkFragment, RBACFragment)
 export const LargeFragment = createQueryStrLazy(`${LargeFragmentStr}`, MediumFragment)
-  

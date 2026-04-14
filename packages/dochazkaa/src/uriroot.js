@@ -154,5 +154,5 @@ export const uri = ({ app="_", model="_", action="view", withId = false, idParam
     return obj;
 };
 
-export const URIRoot = "dochazkaa"
+export const URIRoot = "dochazka"
 export const URIRootObj = uri({ app: URIRoot })

@@ -1,114 +1,106 @@
 import { Col } from "../../../../_template/src/Base/Components/Col"
 import { Row } from "../../../../_template/src/Base/Components/Row"
 import { Link } from "./Link"
-/**
- * A component that displays medium-level content for an template entity.
- *
- * This component renders a label "TemplateMediumContent" followed by a serialized representation of the `template` object
- * and any additional child content. It is designed to handle and display information about an template entity object.
- *
- * @component
- * @param {Object} props - The properties for the TemplateMediumContent component.
- * @param {Object} props.template - The object representing the template entity.
- * @param {string|number} props.template.id - The unique identifier for the template entity.
- * @param {string} props.template.name - The name or label of the template entity.
- * @param {React.ReactNode} [props.children=null] - Additional content to render after the serialized `template` object.
- *
- * @returns {JSX.Element} A JSX element displaying the entity's details and optional content.
- *
- * @example
- * // Example usage:
- * const templateEntity = { id: 123, name: "Sample Entity" };
- * 
- * <TemplateMediumContent template={templateEntity}>
- *   <p>Additional information about the entity.</p>
- * </TemplateMediumContent>
- */
-// export const MediumContent = ({ item, children}) => {
-//     return (
-//         <MediumContent_ item={item}>
-//             {children}
-//         </MediumContent_>
-//     )
-// }
+
+const SectionTitle = ({ children }) => (
+    <Row className="mt-3 mb-2">
+        <Col className="col-12">
+            <h5>{children}</h5>
+        </Col>
+    </Row>
+)
+
+const formatDate = (value) => {
+    if (!value) return ""
+    return new Date(value).toLocaleString("cs-CZ")
+}
+
+const KeyValueRow = ({ label, value, isLink = false, item = null }) => {
+    if (value === null || value === undefined || value === "") return null
+
+    return (
+        <Row className="mb-1">
+            <Col className="col-4">
+                <b>{label}</b>
+            </Col>
+            <Col className="col-8">
+                {isLink && item ? <Link item={item}>{value}</Link> : String(value)}
+            </Col>
+        </Row>
+    )
+}
+
+const ObjectList = ({ items, emptyText = "Žádné položky" }) => {
+    if (!items || items.length === 0) {
+        return <div>{emptyText}</div>
+    }
+
+    return (
+        <>
+            {items.map((subitem, index) => (
+                <div key={subitem?.id || index} className="mb-2">
+                    <Link item={subitem}>
+                        {subitem?.name || subitem?.nameEn || subitem?.id || `Položka ${index + 1}`}
+                    </Link>
+                </div>
+            ))}
+        </>
+    )
+}
 
 export const MediumContent = ({ item, children }) => {
+    const subeventsCount = item?.subevents?.length ?? 0
+    const userInvitationsCount = item?.userInvitations?.length ?? 0
+
     return (
-         <>
-             {Object.entries(item).map(([attribute_name, attribute_value]) => {
-                 // if (attribute_name !== "id") return null
-                 if (Array.isArray(attribute_value)) return null
-                 if (typeof attribute_value === "object" && attribute_value !== null) return null
-                let attribute_value_result = attribute_value
-                 // let attribute_value_result = attribute_value
-                 if (Array.isArray(attribute_value))
-                     // attribute_value_result = <CardCapsule><Table data={attribute_value} /></CardCapsule>
-                     return null
-                 else if (typeof attribute_value === "object" && attribute_value !== null)
-                     // attribute_value_result = <MediumCard item={attribute_value} />
-                    return null
-                 else if (attribute_name === "__typename") {
-                     /*attribute_value_result = <Link item={attribute_value} />*/
-                     // console.log("else1", attribute_name, attribute_value)
-                 }
-                 if (attribute_name === "id")
-                     attribute_value_result = <Link item={item}>{item?.id || "Data error"}</Link>
-                 if (attribute_name === "name")
-                     attribute_value_result = <Link item={item} />
-                 // else return null
-                 if (attribute_value)
-                     return (
-                         <Row key={attribute_name}>
-                             <Col className="col-4"><b>{attribute_name}</b></Col>
-                             <Col className="col-8">{attribute_value_result}</Col>
-                         </Row>
-                     )
-                 else return null
-             })}
-             {Object.entries(item).map(([attribute_name, attribute_value]) => {
-                 if (attribute_value !== null) return null
-                 let attribute_value_result = JSON.stringify(attribute_value)
-                 if (Array.isArray(attribute_value))
-                     // attribute_value_result = <CardCapsule><Table data={attribute_value} /></CardCapsule>
-                     return null
-                 else if (typeof attribute_value === "object" && attribute_value !== null)
-                     // attribute_value_result = <MediumCard item={attribute_value} />
-                     return null
-                 else if (attribute_name === "__typename") {
-                     /*attribute_value_result = <Link item={attribute_value} />*/
-                     console.log("else2", attribute_name, attribute_value)
-                 }
-                 if (attribute_value)
-                     return null
-                 else
-                     return (
-                         <Row key={attribute_name}>
-                             <Col className="col-4"><b>{attribute_name}</b></Col>
-                             <Col className="col-8">{attribute_value_result}</Col>
-                         </Row>
-                     )
-             })}
-             {children}
-         </>
-     )
- }
+        <>
+            <SectionTitle>Základní informace</SectionTitle>
 
-//import { MediumContent as MediumContent_ } from "../../../../_template/src/Base/Components/MediumContent"
-import { Attribute } from "../../../../_template/src/Base/Components/Attribute"
+            <KeyValueRow label="Typ modelu" value={item?.__typename} />
+            <KeyValueRow label="ID" value={item?.id} isLink item={item} />
+            <KeyValueRow label="Název" value={item?.name} isLink item={item} />
+            <KeyValueRow label="Název EN" value={item?.nameEn} />
 
-//export const MediumContent = ({ item, children }) => {
-    //return (
-        //<>  
-            //<Attribute name="id">
-                //<Link item={item}>něco</Link>
-            //</Attribute>
-            //<hr/>
-           // {item?.id}{" "}
-           // {item?.order}
-           // <hr/>
+            <SectionTitle>Čas a stav</SectionTitle>
+            
+            <KeyValueRow label="Vytvořeno" value={formatDate(item?.created)} />
+            <KeyValueRow label="Poslední změna" value={formatDate(item?.lastchange)} />
+            <KeyValueRow label="Začátek" value={formatDate(item?.startdate)} />
+            <KeyValueRow label="Konec" value={formatDate(item?.enddate)} />
+            <KeyValueRow label="Validní" value={item?.valid} />
 
-          //  <pre>
-           //     JSON.stringify(item, null, 2)
-           // </pre>
-      //  </>)
-//}
+            <SectionTitle>Detaily</SectionTitle>
+
+            <KeyValueRow label="Popis" value={item?.description} />
+            <KeyValueRow label="Místo" value={item?.place} />
+            <KeyValueRow label="Cesta" value={item?.path} />
+
+            <SectionTitle>Souhrn</SectionTitle>
+
+            <KeyValueRow label="Počet subevents" value={subeventsCount} />
+            <KeyValueRow label="Počet účastí" value={userInvitationsCount} />
+
+            <SectionTitle>Vazby</SectionTitle>
+
+            <Row className="mb-3">
+                <Col className="col-4">
+                    <b>Subeventy</b>
+                </Col>
+                <Col className="col-8">
+                    <ObjectList items={item?.subevents} emptyText="Žádné subeventy" />
+                </Col>
+            </Row>
+
+            <Row className="mb-3">
+                <Col className="col-4">
+                    <b>Účasti</b>
+                </Col>
+                <Col className="col-8">
+                    <ObjectList items={item?.userInvitations} emptyText="Žádné účasti" />
+                </Col>
+            </Row>
+
+            {children}
+        </>
+    )
+}
