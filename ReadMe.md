@@ -1,22 +1,29 @@
 # Změny
 
-## 3.4.2025
+## 11. 5. 2026
 
-- script `createscalar.js`
-- script `createvector.js`
-- template `EmptyVectorsAttribute.jsx`
+### Úprava Update mutace pro EventGQLModel
 
+Dnes byla doplněna a otestována frontendová část pro úpravu entity `EventGQLModel`.
 
+### Upravené soubory
 
+- `packages/dochazkaa/src/EventGQLModel/Queries/UpdateAsyncAction.jsx`
+- `packages/dochazkaa/src/EventGQLModel/Queries/DeleteAsyncAction.jsx`
+- `packages/dochazkaa/src/EventGQLModel/Components/MediumEditableContent.jsx`
+- soubory v části `Mutations`, kde se řešilo zobrazení tlačítek pro práci s entitou
 
-# Jak spustit konrétní app
+### Co bylo upraveno
 
-```cmd
-npm run dev -w @hrbolek/app_dynamic
-```
+Byla opravena update mutace pro entitu `EventGQLModel`.
 
-# Jak sestavit konrétní app
+Původně byla v části update použita nesprávná mutace pro jiný typ entity. Nyní je připravena mutace:
 
-```cmd
-npm run build -w @hrbolek/app_dynamic
-```
+```graphql
+mutation eventUpdate(
+  $id: UUID!
+  $lastchange: DateTime!
+  $name: String
+  $nameEn: String
+  $description: String
+)
