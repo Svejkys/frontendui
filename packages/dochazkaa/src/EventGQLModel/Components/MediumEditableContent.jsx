@@ -10,6 +10,7 @@ export const MediumEditableContent = ({
         <>
             <Input
                 id={"name"}
+                type={"string"}
                 label={"Název"}
                 className="form-control"
                 value={item?.name || ""}
@@ -19,6 +20,7 @@ export const MediumEditableContent = ({
 
             <Input
                 id={"nameEn"}
+                type={"string"}
                 label={"Název EN"}
                 className="form-control"
                 value={item?.nameEn || ""}
@@ -28,6 +30,7 @@ export const MediumEditableContent = ({
 
             <Input
                 id={"description"}
+                type={"string"}
                 label={"Popis"}
                 className="form-control"
                 value={item?.description || ""}

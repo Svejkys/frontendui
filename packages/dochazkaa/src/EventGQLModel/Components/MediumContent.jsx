@@ -1,3 +1,4 @@
+import { Attribute } from "../../../../_template/src/Base/Components"
 import { Col } from "../../../../_template/src/Base/Components/Col"
 import { Row } from "../../../../_template/src/Base/Components/Row"
 import { Link } from "./Link"
@@ -99,6 +100,10 @@ export const MediumContent = ({ item, children }) => {
                     <ObjectList items={item?.userInvitations} emptyText="Žádné účasti" />
                 </Col>
             </Row>
+            
+            <Attribute label={"Moje Role"}>
+                {item?.rbacobject?.currentUserRoles?.length > 0 ? item.rbacobject.currentUserRoles.map(role=> role.roletype?.name).join(", ") : "Žádná role"}
+            </Attribute>
 
             {children}
         </>
