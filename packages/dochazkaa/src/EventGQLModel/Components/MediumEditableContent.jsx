@@ -19,16 +19,6 @@ export const MediumEditableContent = ({
             />
 
             <Input
-                id={"nameEn"}
-                type={"string"}
-                label={"Název EN"}
-                className="form-control"
-                value={item?.nameEn || ""}
-                onChange={onChange}
-                onBlur={onBlur}
-            />
-
-            <Input
                 id={"description"}
                 type={"string"}
                 label={"Popis"}

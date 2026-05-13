@@ -114,7 +114,7 @@ export const Input = ({ label, ariaHidden = false, children, ...props }) => {
         touchedRef.current = true;
         const value = e?.target?.value
         setValue_(value)
-        // console.log("Input.handleChange.value changed to", value, reset)
+        console.log("Input.handleChange.value changed to", value, reset)
         emit(onChange)(e);
     };
 
