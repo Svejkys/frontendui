@@ -1,50 +1,45 @@
 import { createQueryStrLazy } from "@hrbolek/uoisfrontend-gql-shared"
+import { EventFragment } from "../../EventGQLModel/Queries/Fragments"
 
-const EventFragmentStr = `
-fragment Event on EventGQLModel {
+const StudyPlanLessonFragmentStr = `
+fragment StudyPlanLesson on StudyPlanLessonGQLModel {
   __typename
   id
   lastchange
   created
+  createdbyId
+  changedbyId
+  rbacobjectId
+  order
   name
   nameEn
-  startdate
-  enddate
-  valid
-  place
-  path
-  description
+  length
+  eventId
+  event {
+  ...Event
+}
+ 
+  linkedWithId
+  planId
 
-  subevents {
-    __typename
-    id
-    name
-    nameEn
-    startdate
-    enddate
-  }
-
-  userInvitations {
-    __typename
-    id
-  }
+  linkedWith { id }
 }
 `
 
 const MediumFragmentStr = `
-fragment Medium on EventGQLModel {
-  ...Event
+fragment Medium on StudyPlanLessonGQLModel {
+  ...StudyPlanLesson
 }
 `
 
 const LargeFragmentStr = `
-fragment Large on EventGQLModel {
+fragment Large on StudyPlanLessonGQLModel {
   ...Medium
 }
 `
 /*
 const RoleFragmentStr = `
-fragment Role on EventGQLModel {
+fragment Role on RoleGQLModel {
     __typename
     id
     lastchange
@@ -95,12 +90,12 @@ fragment RBRoles on RBACObjectGQLModel {
       }
     }
   }
-}
-`
+}`
 */
-/*export const RoleFragment = createQueryStrLazy(`${RoleFragmentStr}`)
-export const RBACFragment = createQueryStrLazy(`${RBACFragmentStr}`)
-*/
-export const EventFragment = createQueryStrLazy(`${EventFragmentStr}`)
-export const MediumFragment = createQueryStrLazy(`${MediumFragmentStr}`, EventFragment)
+/* export const RoleFragment = createQueryStrLazy(`${RoleFragmentStr}`)
+export const RBACFragment = createQueryStrLazy(`${RBACFragmentStr}`) */
+
+export const StudyPlanLessonFragment = createQueryStrLazy(`${StudyPlanLessonFragmentStr}`)
+export const MediumFragment = createQueryStrLazy(`${MediumFragmentStr}`, StudyPlanLessonFragment, EventFragment)
 export const LargeFragment = createQueryStrLazy(`${LargeFragmentStr}`, MediumFragment)
+  

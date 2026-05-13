@@ -1,50 +1,45 @@
 import { createQueryStrLazy } from "@hrbolek/uoisfrontend-gql-shared"
+import { EventFragment } from "../../EventGQLModel/Queries/Fragments"
+import { StudyPlanLessonFragment } from "../../StudyPlanLessonGQLModel/Queries/Fragments"
 
-const EventFragmentStr = `
-fragment Event on EventGQLModel {
-  __typename
-  id
-  lastchange
-  created
-  name
-  nameEn
-  startdate
-  enddate
-  valid
-  place
-  path
-  description
-
-  subevents {
-    __typename
-    id
-    name
-    nameEn
-    startdate
-    enddate
-  }
-
-  userInvitations {
-    __typename
-    id
-  }
+const LinkFragmentStr = `
+fragment Link on StudyPlanGQLModel {
+__typename
+id
+lastchange
+created
+createdbyId
+changedbyId
+rbacobjectId
+semesterId
+examId
+eventId
+event {
+  ...Event
+}
+lessons {
+  ...StudyPlanLesson
+}
 }
 `
 
 const MediumFragmentStr = `
-fragment Medium on EventGQLModel {
-  ...Event
+fragment Medium on StudyPlanGQLModel {
+  ...Link
+  rbacobject {
+    ...RBRoles
+  }
 }
 `
 
 const LargeFragmentStr = `
-fragment Large on EventGQLModel {
+fragment Large on StudyPlanGQLModel {
   ...Medium
 }
 `
-/*
+
 const RoleFragmentStr = `
-fragment Role on EventGQLModel {
+fragment Role on RoleGQLModel {
     __typename
     id
     lastchange
@@ -95,12 +90,11 @@ fragment RBRoles on RBACObjectGQLModel {
       }
     }
   }
-}
-`
-*/
-/*export const RoleFragment = createQueryStrLazy(`${RoleFragmentStr}`)
+}`
+
+export const RoleFragment = createQueryStrLazy(`${RoleFragmentStr}`)
 export const RBACFragment = createQueryStrLazy(`${RBACFragmentStr}`)
-*/
-export const EventFragment = createQueryStrLazy(`${EventFragmentStr}`)
-export const MediumFragment = createQueryStrLazy(`${MediumFragmentStr}`, EventFragment)
-export const LargeFragment = createQueryStrLazy(`${LargeFragmentStr}`, MediumFragment)
+export const LinkFragment = createQueryStrLazy(`${LinkFragmentStr}`)
+export const MediumFragment = createQueryStrLazy(`${MediumFragmentStr}`, LinkFragment, RBACFragment)
+export const LargeFragment = createQueryStrLazy(`${LargeFragmentStr}`, MediumFragment, EventFragment, StudyPlanLessonFragment)
+  
