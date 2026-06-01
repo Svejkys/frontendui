@@ -6,6 +6,7 @@ import { Row } from "../../../../_template/src/Base/Components/Row"
 import { MediumContent as MediumContent_ } from "./MediumContent"
 import { InteractiveMutations } from '../Mutations/InteractiveMutations'
 import { LeftColumn, MiddleColumn } from "../../../../_template/src/Base/Components/Col"
+import { StudyPlanAttendance } from "../../EventInvitationGQLModel/Components/StudyPlanAttendance"
 /**
  * A large card component for displaying detailed content and layout for an template entity.
  *
@@ -44,6 +45,9 @@ export const LargeCard = ({ item, children, CardCapsule=CardCapsule_, MediumCont
                 <MiddleColumn>
                     {children}
                 </MiddleColumn>
+            </Row>
+            <Row>
+                <StudyPlanAttendance studyPlanId={item?.id} />
             </Row>
         </CardCapsule>
     )
