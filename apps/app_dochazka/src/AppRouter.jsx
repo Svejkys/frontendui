@@ -17,6 +17,7 @@ import { AppNavbar } from "./AppNavbar";
 import { EventGQLModelRouterSegments } from "../../../packages/dochazkaa/src/EventGQLModel/Pages/RouterSegment";
 import { StudyPlanRouterSegments } from "../../../packages/dochazkaa/src/StudyPlanGQLModel/Pages/RouterSegment";
 import {StudyPlanLessonRouterSegments} from "../../../packages/dochazkaa/src/StudyPlanLessonGQLModel/Pages/RouterSegment";
+import { EventInvitationRouterSegments } from "../../../packages/dochazkaa/src/EventInvitationGQLModel/Pages/RouterSegment";
 
 const AppLayout = () => (
     <NavigationHistoryProvider>
@@ -39,7 +40,8 @@ const Routes = [
             // ...GroupTypeRouterSegments,
             // ...RoleRouterSegments,
             ...StudyPlanRouterSegments,
-            ...StudyPlanLessonRouterSegments
+            ...StudyPlanLessonRouterSegments,
+            ...EventInvitationRouterSegments
         ],
     },
 ];
