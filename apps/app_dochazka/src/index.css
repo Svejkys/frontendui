@@ -45,3 +45,256 @@
       page-break-inside: avoid;
     }
   }
+
+.study-plan-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.study-plan-hero {
+  align-items: center;
+  background: linear-gradient(135deg, #f8fafc 0%, #eef7f4 100%);
+  border: 1px solid #d7e3df;
+  border-radius: 8px;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.study-plan-eyebrow {
+  color: #4b635d;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.study-plan-title {
+  color: #17211f;
+  font-size: 1.45rem;
+  line-height: 1.2;
+  margin: 0.15rem 0 0.4rem;
+}
+
+.study-plan-hero-meta {
+  color: #42524f;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.study-plan-hero-count {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #d7e3df;
+  border-radius: 8px;
+  color: #284640;
+  display: flex;
+  flex-direction: column;
+  min-width: 8.5rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.study-plan-hero-count strong {
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.study-plan-hero-count span {
+  font-size: 0.82rem;
+}
+
+.study-plan-summary {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+}
+
+.study-plan-summary-item {
+  background: #ffffff;
+  border: 1px solid #dde5ea;
+  border-left: 4px solid #2f7d69;
+  border-radius: 8px;
+  min-width: 0;
+  padding: 0.75rem;
+}
+
+.study-plan-summary-label {
+  color: #66737f;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.study-plan-summary-value {
+  color: #1e2b33;
+  font-weight: 650;
+  margin-top: 0.2rem;
+  overflow-wrap: anywhere;
+}
+
+.study-plan-section-head {
+  align-items: baseline;
+  border-bottom: 1px solid #e1e7eb;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding-bottom: 0.45rem;
+}
+
+.study-plan-section-head h3 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.study-plan-section-head span {
+  color: #687782;
+  font-size: 0.85rem;
+}
+
+.study-plan-lessons {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.study-plan-lesson {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #dde5ea;
+  border-left: 4px solid #3d74b8;
+  border-radius: 8px;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 2.5rem minmax(0, 1fr) 6.25rem;
+  padding: 0.75rem;
+}
+
+.study-plan-lesson-index {
+  align-items: center;
+  background: #eef3f8;
+  border-radius: 8px;
+  color: #27496f;
+  display: flex;
+  font-weight: 700;
+  height: 2.25rem;
+  justify-content: center;
+  width: 2.25rem;
+}
+
+.study-plan-lesson-title {
+  color: #17211f;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.study-plan-lesson-subtitle,
+.study-plan-lesson-meta {
+  color: #5e6a72;
+  font-size: 0.86rem;
+}
+
+.study-plan-lesson-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.8rem;
+  margin-top: 0.2rem;
+}
+
+.study-plan-lesson-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.75rem;
+  margin-top: 0.65rem;
+}
+
+.study-plan-invitation-control {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.75rem;
+}
+
+.study-plan-invitation-user {
+  color: #26343b;
+  font-size: 0.88rem;
+  font-weight: 700;
+  min-width: 10rem;
+}
+
+.study-plan-invitations-panel {
+  width: 100%;
+}
+
+.study-plan-invitations-panel summary {
+  color: #2f695b;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.study-plan-invitations-list {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.65rem;
+}
+
+.study-plan-current-state {
+  color: #4f5e66;
+  font-size: 0.82rem;
+}
+
+.study-plan-no-invitation {
+  color: #687782;
+  font-size: 0.82rem;
+}
+
+.study-plan-lesson-invitations {
+  color: #324047;
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.study-plan-lesson-invitations strong {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.study-plan-lesson-invitations span {
+  color: #687782;
+  font-size: 0.78rem;
+}
+
+.study-plan-empty {
+  background: #f8fafc;
+  border: 1px dashed #bdc9d2;
+  border-radius: 8px;
+  color: #61707b;
+  padding: 1rem;
+}
+
+@media (max-width: 720px) {
+  .study-plan-hero,
+  .study-plan-section-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .study-plan-hero-count {
+    align-items: flex-start;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .study-plan-lesson {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+  }
+
+  .study-plan-lesson-invitations {
+    grid-column: 2;
+    text-align: left;
+  }
+}

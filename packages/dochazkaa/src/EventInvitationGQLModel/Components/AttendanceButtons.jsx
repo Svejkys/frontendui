@@ -3,21 +3,13 @@ import { useAsyncThunkAction } from "../../../../dynamic/src/Hooks/useAsyncThunk
 import { UpdateAsyncAction } from "../Queries/UpdateAsyncAction"
 import { stateVariant } from "./stateHelpers"
 
-/**
- * Sada tlačítek pro nastavení stavu jedné pozvánky.
- *
- * Pro každý dostupný stav vykreslí tlačítko. Aktuální stav je zvýrazněn
- * (plné tlačítko), ostatní jsou jako "outline". Kliknutí odešle mutaci
- * `eventInvitationUpdate` a po úspěchu zavolá `onChanged()`, aby si rodič
- * mohl znovu načíst data.
- *
- * @param {object} props
- * @param {object} props.invitation - pozvánka { id, lastchange, stateId, state }
- * @param {Array<{id,name,nameEn,order}>} props.availableStates - možné stavy
- * @param {() => void} [props.onChanged] - callback po úspěšné změně
- * @param {string} [props.size="sm"] - velikost tlačítek (bootstrap)
- */
-export const AttendanceButtons = ({ invitation, availableStates = [], onChanged, size = "sm" }) => {
+export const AttendanceButtons = ({
+    invitation,
+    availableStates = [],
+    onChanged,
+    size = "sm",
+    labelForState = (state) => state?.name || "Stav",
+}) => {
     const { run, loading } = useAsyncThunkAction(UpdateAsyncAction, undefined, { deferred: true })
     const [busyStateId, setBusyStateId] = useState(null)
     const [error, setError] = useState(null)
@@ -36,14 +28,14 @@ export const AttendanceButtons = ({ invitation, availableStates = [], onChanged,
             })
             if (onChanged) onChanged()
         } catch (e) {
-            setError(e?.message || "Změna stavu se nezdařila")
+            setError(e?.message || "Zmena stavu se nezdarila")
         } finally {
             setBusyStateId(null)
         }
     }
 
     if (!availableStates.length) {
-        return <span className="text-muted">Žádné dostupné stavy</span>
+        return <span className="text-muted">Zadne dostupne stavy</span>
     }
 
     return (
@@ -53,6 +45,8 @@ export const AttendanceButtons = ({ invitation, availableStates = [], onChanged,
                 const variant = stateVariant(st)
                 const className = `btn btn-${size} ${isCurrent ? `btn-${variant}` : `btn-outline-${variant}`}`
                 const isBusy = busyStateId === st.id && loading
+                const label = labelForState(st)
+
                 return (
                     <button
                         key={st.id}
@@ -60,9 +54,9 @@ export const AttendanceButtons = ({ invitation, availableStates = [], onChanged,
                         className={className}
                         disabled={loading || isCurrent}
                         onClick={() => handleClick(st.id)}
-                        title={isCurrent ? "Aktuální stav" : `Nastavit stav: ${st.name}`}
+                        title={isCurrent ? "Aktualni stav" : `Nastavit stav: ${label}`}
                     >
-                        {isBusy ? "…" : st.name}
+                        {isBusy ? "..." : label}
                     </button>
                 )
             })}

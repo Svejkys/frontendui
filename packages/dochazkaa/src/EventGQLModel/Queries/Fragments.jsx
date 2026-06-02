@@ -27,6 +27,33 @@ fragment Event on EventGQLModel {
   userInvitations {
     __typename
     id
+    lastchange
+    userId
+    stateId
+    user {
+      __typename
+      id
+      fullname
+      email
+    }
+    state {
+      __typename
+      id
+      name
+      nameEn
+      order
+      statemachine {
+        __typename
+        id
+        states {
+          __typename
+          id
+          name
+          nameEn
+          order
+        }
+      }
+    }
   }
 }
 `
