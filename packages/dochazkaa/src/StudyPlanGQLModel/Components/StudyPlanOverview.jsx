@@ -5,6 +5,7 @@ import { useAsyncThunkAction } from "../../../../dynamic/src/Hooks/useAsyncThunk
 import { AttendanceButtons } from "../../EventInvitationGQLModel/Components/AttendanceButtons"
 import { classifyState, collectAvailableStates } from "../../EventInvitationGQLModel/Components/stateHelpers"
 import { InsertAsyncAction, SearchUsersAsyncAction } from "../../EventInvitationGQLModel/Queries"
+import { StudentAttendanceMatrix } from "../../EventInvitationGQLModel/Components/StudentAttendanceMatrix"
 
 const toDate = (value) => {
     if (!value) return null
@@ -297,18 +298,15 @@ export const StudyPlanOverview = ({ item }) => {
             </div>
 
             <div className="study-plan-lessons">
-                {lessons.length > 0 ? (
-                    lessons.map((lesson, index) => (
-                        <LessonRow
-                            key={lesson?.id || index}
-                            lesson={lesson}
-                            index={index}
-                            onChanged={() => reRead?.()}
-                        />
-                    ))
-                ) : (
-                    <EmptyLessons />
-                )}
+                <StudentAttendanceMatrix
+                    events={lessons.map((lesson) => ({
+                        ...lesson?.event,
+                        name: lesson?.name || lesson?.event?.name,
+                        invitations: lesson?.event?.userInvitations || [],
+                    }))}
+                    onChanged={() => reRead?.()} /*Tady změnit na mutaci, aby se updatoval stav*/
+                    title="Docházka"
+                />
             </div>
         </section>
     )
