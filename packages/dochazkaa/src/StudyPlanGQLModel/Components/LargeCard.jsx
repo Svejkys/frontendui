@@ -43,7 +43,7 @@ export const LargeCard = ({ item, children, CardCapsule=CardCapsule_, MediumCont
                     <CardCapsule item={item} title="Detailní informace">
                         <MediumContent item={item} />
                     </CardCapsule>
-                    
+                    <InteractiveMutations item={item} />
                 </LeftColumn>
                 <MiddleColumn>
                     {children}

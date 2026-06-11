@@ -11,7 +11,7 @@ const DefaultContent = (props) => <MediumEditableContent {...props} />
 const MutationAsyncAction = InsertAsyncAction
 
 const permissions = {
-    oneOfRoles: ["superadmin"],
+    oneOfRoles: ["studijní administrátor"],
     mode: "absolute",
 }
 
@@ -140,7 +140,7 @@ export const CreateButton = ({
  * @returns {JSX.Element} Vykreslí `BaseCreateDialog` s přednastavenými defaulty.
  */
 export const CreateDialog = ({
-    title = "Nov(ý/é)",
+    title = "Přidat",
     // mutationAsyncAction=MutationAsyncAction,
     DefaultContent:defaultContent=DefaultContent,
     readItemURI=ReadItemURI, 

@@ -1,34 +1,67 @@
-import { Input } from "../../../../_template/src/Base/FormControls/Input"
+import { useState } from "react"
+import { useDispatch } from "react-redux"
+import { UserInputSearch } from "./UserSearch"
+import { InsertAsyncAction as InsertInvitationAsyncAction } from "../../EventInvitationGQLModel/Queries/InsertAsyncAction"
 
 /**
- * A component that displays medium-level content for an template entity.
- *
- * This component renders a label "TemplateMediumContent" followed by a serialized representation of the `template` object
- * and any additional child content. It is designed to handle and display information about an template entity object.
- *
- * @component
- * @param {Object} props - The properties for the TemplateMediumContent component.
- * @param {Object} props.template - The object representing the template entity.
- * @param {string|number} props.template.id - The unique identifier for the template entity.
- * @param {string} props.template.name - The name or label of the template entity.
- * @param {React.ReactNode} [props.children=null] - Additional content to render after the serialized `template` object.
- *
- * @returns {JSX.Element} A JSX element displaying the entity's details and optional content.
- *
- * @example
- * // Example usage:
- * const templateEntity = { id: 123, name: "Sample Entity" };
- * 
- * <TemplateMediumContent template={templateEntity}>
- *   <p>Additional information about the entity.</p>
- * </TemplateMediumContent>
+ * Posbírá id všech událostí v načteném studijním plánu:
+ * hlavní událost plánu (`eventId`/`event`) i událost každé lekce (`lessons[].eventId`/`event`).
+ * Výsledek je deduplikovaný.
  */
-export const MediumEditableContent = ({ item, onChange=(e)=>null, onBlur=(e)=>null, children}) => {
+const collectEventIds = (item) => {
+    const ids = [
+        item?.eventId,
+        item?.event?.id,
+        ...(item?.lessons || []).flatMap((lesson) => [lesson?.eventId, lesson?.event?.id]),
+    ].filter(Boolean)
+    return [...new Set(ids)]
+}
+
+export const MediumEditableContent = ({ item, program, onSelect, onChange, children }) => {
+    const dispatch = useDispatch()
+    const [selectedUser, setSelectedUser] = useState(null)
+    const [saving, setSaving] = useState(false)
+    const [message, setMessage] = useState(null)
+    const [error, setError] = useState(null)
+
+    const handleSelect = (user) => {
+        setSelectedUser(user)
+        setMessage(null)
+        setError(null)
+        if (onChange) {
+            onChange({ target: { id: "selectedUserId", value: user.id } })
+        }
+        if (onSelect) onSelect(user)
+    }
+
+    const handleOk = async () => {
+        if (!selectedUser?.id) return //kdyz vyberu toho usera, tak se posle mutace
+        const eventIds = collectEventIds(item)
+        if (eventIds.length === 0) {
+            setError("Načtená položka nemá žádné události.")
+            return
+        }
+        setSaving(true)
+        setMessage(null)
+        setError(null)
+        try {
+            await Promise.all(
+                eventIds.map((eventId) =>
+                    dispatch(InsertInvitationAsyncAction({ eventId, userId: selectedUser.id }))
+                )
+            )
+            setMessage(`Vytvořeno ${eventIds.length} pozvánek pro ${selectedUser.fullname || selectedUser.id}.`)
+        } catch (e) {
+            setError("Pozvánky se nepodařilo vytvořit.")
+        } finally {
+            setSaving(false)
+        }
+    }
+
     return (
-        <>           
-        {/* defaultValue={item?.name|| "Název"}  */}
-            <Input id={"name"} label={"Jméno"} className="form-control" value={item?.name|| "Název"} onChange={onChange} onBlur={onBlur} />
-            <Input id={"nameEn"} label={"Anglický název"} className="form-control" value={item?.nameEn|| "Anglický název"} onChange={onChange} onBlur={onBlur} />
+        <>
+            <h4>Jméno</h4>
+            <UserInputSearch onSelect={handleSelect} />
             {children}
         </>
     )
