@@ -270,31 +270,8 @@ export const StudyPlanOverview = ({ item }) => {
 
     return (
         <section className="study-plan-overview">
-            <div className="study-plan-hero">
-                <div>
-                    <div className="study-plan-eyebrow">Predmet v semestru</div>
-                    <h2 className="study-plan-title">{subjectName}</h2>
-                    <div className="study-plan-hero-meta">
-                        <span>{formatDate(firstLessonEvent?.startdate)}</span>
-                        <span>{formatTimeRange(firstLessonEvent?.startdate, firstLessonEvent?.enddate)}</span>
-                    </div>
-                </div>
-                <div className="study-plan-hero-count">
-                    <strong>{lessons.length}</strong>
-                    <span>stavebnich bloku</span>
-                </div>
-            </div>
-
-            <div className="study-plan-summary">
-                <SummaryItem label="Nazev predmetu" value={subjectName} />
-                <SummaryItem label="Datum vyuky" value={formatDate(firstLessonEvent?.startdate)} />
-                <SummaryItem label="Cas vyuky" value={formatTimeRange(firstLessonEvent?.startdate, firstLessonEvent?.enddate)} />
-                <SummaryItem label="Pozvanky celkem" value={invitationsTotal} />
-            </div>
-
             <div className="study-plan-section-head">
                 <h3>Stavebni bloky predmetu</h3>
-                <span>{lessons.length} polozek v planu</span>
             </div>
 
             <div className="study-plan-lessons">
