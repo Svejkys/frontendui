@@ -5,7 +5,7 @@ import { Row } from "../../../../_template/src/Base/Components/Row"
 // import { LeftColumn, MiddleColumn } from "@hrbolek/uoisfrontend-shared"
 import { MediumContent as MediumContent_ } from "./MediumContent"
 import { InteractiveMutations } from '../Mutations/InteractiveMutations'
-import { LeftColumn, MiddleColumn } from "../../../../_template/src/Base/Components/Col"
+import { MiddleColumn } from "../../../../_template/src/Base/Components/Col"
 /**
  * A large card component for displaying detailed content and layout for an template entity.
  *
@@ -39,13 +39,11 @@ export const LargeCard = ({ item, children, CardCapsule=CardCapsule_, MediumCont
     return (
         <CardCapsule item={item} title={getStudyPlanTitle(item)}>
             <Row>
-                <LeftColumn>
+                <MiddleColumn xl={12}>
+                    <InteractiveMutations item={item} />
                     <CardCapsule item={item} title="Detailní informace">
                         <MediumContent item={item} />
                     </CardCapsule>
-                    <InteractiveMutations item={item} />
-                </LeftColumn>
-                <MiddleColumn>
                     {children}
                 </MiddleColumn>
             </Row>
