@@ -38,7 +38,7 @@ export const MatrixCell = ({ invitation, availableStates = [], onChanged }) => {
                 backgroundColor: error ? "#ffe0e0" : stateCellColor(invitation?.state),
                 textAlign: "center",
                 padding: "2px 4px",
-                minWidth: 110,
+                minWidth: 30,
             }}
             title={invitation?.state?.name || ""}
         >
@@ -46,17 +46,17 @@ export const MatrixCell = ({ invitation, availableStates = [], onChanged }) => {
                 {stateSymbol(invitation?.state)}
             </div>
             <select
-                className="form-select form-select-sm"
-                style={{ fontSize: "0.72rem", padding: "1px 4px" }}
+                className="form-select form-select-sm w-100"
+                style={{ fontSize: "0.72rem", padding: "1px 4px", minWidth: 0, maxWidth: "100%" }}
                 value={currentStateId || ""}
                 disabled={loading}
                 onChange={handleChange}
             >
                 {!availableStates.some((s) => s.id === currentStateId) && (
-                    <option value={currentStateId || ""}>{invitation?.state?.name || "—"}</option>
+                    <option value={currentStateId || ""}>{stateSymbol(invitation?.state)}</option>
                 )}
                 {availableStates.map((st) => (
-                    <option key={st.id} value={st.id}>{st.name}</option>
+                    <option key={st.id} value={st.id} title={st.name}>{stateSymbol(st)}</option>
                 ))}
             </select>
         </td>

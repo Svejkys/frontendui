@@ -45,8 +45,26 @@ export const stateVariant = (state) => {
     }
 }
 
+/**
+ * Explicitní mapování názvu stavu → symbol. Použije se přednostně před
+ * heuristikou `classifyState`, takže funguje i pro stavy, jejichž název
+ * neobsahuje rozpoznatelná klíčová slova (např. workflow stavy).
+ *
+ * Klíče se porovnávají bez ohledu na velikost písmen a okolní mezery.
+ * Doplň/uprav řádky podle skutečných názvů stavů.
+ */
+const STATE_SYMBOL_OVERRIDES = {
+    // "název stavu": "✓" | "✕" | "•"
+    // "schvalovatel": "✓",
+    // "archiv": "✕",
+    // "žadatel": "•",
+}
+
 /** Krátký symbol pro buňku matice. */
 export const stateSymbol = (state) => {
+    const override = STATE_SYMBOL_OVERRIDES[norm(state?.name)] ?? STATE_SYMBOL_OVERRIDES[norm(state?.nameEn)]
+    if (override) return override
+
     switch (classifyState(state)) {
         case "confirmed": return "✓"
         case "declined": return "✕"

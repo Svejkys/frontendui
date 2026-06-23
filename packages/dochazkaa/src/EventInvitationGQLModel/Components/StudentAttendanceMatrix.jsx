@@ -74,19 +74,19 @@ export const StudentAttendanceMatrix = ({ events = [], onChanged, title = "Doch�
                 <span><span style={{ color: "#6c757d", fontWeight: "bold" }}>•</span> čeká</span>
             </div>
             <div style={{ overflowX: "auto" }}>
-                <table className="table table-sm table-bordered align-middle" style={{ minWidth: 600 }}>
+                <table className="table table-sm table-bordered align-middle" style={{ tableLayout: "fixed", width: "auto" }}>
                     <thead>
                         <tr>
-                            <th style={{ position: "sticky", left: 0, background: "#fff", minWidth: 180 }}>
+                            <th style={{ position: "sticky", left: 0, background: "#fff", width: 140 }}>
                                 Student \ Výuka
                             </th>
                             {sortedEvents.map((ev) => (
-                                <th key={ev.id} style={{ fontSize: "0.78rem", verticalAlign: "bottom", minWidth: 110 }}>
+                                <th key={ev.id} style={{ fontSize: "0.78rem", verticalAlign: "bottom", width: 90, tableLayout: "fixed" }}>
                                     <div className="fw-bold">{ev?.name || "Výuka"}</div>
                                     <div className="text-muted">{formatLectureShort(ev?.startdate, ev?.enddate)}</div>
                                 </th>
                             ))}
-                            <th style={{ fontSize: "0.78rem", verticalAlign: "bottom", whiteSpace: "nowrap" }}>
+                            <th style={{ fontSize: "0.78rem", verticalAlign: "bottom", width: 60 }}>
                                 Celkem
                             </th>
                         </tr>
@@ -94,7 +94,7 @@ export const StudentAttendanceMatrix = ({ events = [], onChanged, title = "Doch�
                     <tbody>
                         {students.map((student) => (
                             <tr key={student.id}>
-                                <th style={{ position: "sticky", left: 0, background: "#fff", fontWeight: "normal" }}>
+                                <th style={{ position: "sticky", left: 0, background: "#fff", fontWeight: "normal", width: 140 }}>
                                     <div className="fw-bold">{student.fullname || student.id}</div>
                                     {student.email && (
                                         <div className="small text-muted">{student.email}</div>
