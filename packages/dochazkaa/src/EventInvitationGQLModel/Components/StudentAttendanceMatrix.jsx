@@ -4,6 +4,7 @@ import { MatrixCell } from "./MatrixCell"
 import { collectAvailableStates, classifyState } from "./stateHelpers"
 import { formatLectureShort } from "./datetime"
 import { UserLink } from "../../../../ug/src/Components/User/UserLink"
+import { Link as StudyPlanLink } from "../../StudyPlanGQLModel/Components/Link"
  
 /**
  * Docházková matice: řádky = studenti, sloupce = výuky (témata).
@@ -12,8 +13,9 @@ import { UserLink } from "../../../../ug/src/Components/User/UserLink"
  * @param {Array<object>} props.events - pole událostí, každá s polem `invitations`
  * @param {() => void} [props.onChanged] - znovunačtení po změně stavu
  * @param {string} [props.title="Docházková matice"]
+ * @param {object} [props.studyPlan] - studijní plán, na který odkazují hlavičky sloupců (témat)
  */
-export const StudentAttendanceMatrix = ({ events = [], onChanged, title = "Docházková matice" }) => {
+export const StudentAttendanceMatrix = ({ events = [], onChanged, title = "Docházková matice", editable = false, studyPlan }) => {
     const availableStates = useMemo(() => {
         const all = events.flatMap((ev) => ev?.invitations || [])
         return collectAvailableStates(all)
@@ -83,7 +85,11 @@ export const StudentAttendanceMatrix = ({ events = [], onChanged, title = "Doch�
                             </th>
                             {sortedEvents.map((ev) => (
                                 <th key={ev.id} style={{ fontSize: "0.78rem", verticalAlign: "bottom", width: 90, tableLayout: "fixed" }}>
-                                    <div className="fw-bold">{ev?.name || "Výuka"}</div>
+                                    <div className="fw-bold">
+                                        {studyPlan?.id
+                                            ? <StudyPlanLink item={studyPlan} LinkURI="studyplan/StudyPlanGQLModel/view/">{ev?.name || "Výuka"}</StudyPlanLink>
+                                            : (ev?.name || "Výuka")}
+                                    </div>
                                     <div className="text-muted">{formatLectureShort(ev?.startdate, ev?.enddate)}</div>
                                 </th>
                             ))}
@@ -106,6 +112,7 @@ export const StudentAttendanceMatrix = ({ events = [], onChanged, title = "Doch�
                                         invitation={lookup.get(`${ev.id}__${student.id}`)}
                                         availableStates={availableStates}
                                         onChanged={onChanged}
+                                        editable={editable}
                                     />
                                 ))}
                                 <td className="text-center small text-success">

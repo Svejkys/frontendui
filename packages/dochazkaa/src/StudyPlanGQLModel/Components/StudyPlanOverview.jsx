@@ -283,6 +283,7 @@ export const StudyPlanOverview = ({ item }) => {
                     }))}
                     onChanged={() => reRead?.()} /*Tady změnit na mutaci, aby se updatoval stav*/
                     title="Docházka"
+                    studyPlan={item}
                 />
             </div>
         </section>

@@ -82,6 +82,23 @@ export const stateSymbol = (state) => {
     }
 }
 
+/** Emoji pro buňku matice. */
+export const stateEmoji = (state) => {
+    switch (classifyState(state)) {
+        case "confirmed": return "✅"
+        case "declined": return "❌"
+        case "pending": return "❓"
+        default: return "❓"
+    }
+}
+
+/** Výchozí stavy pro dropdown, když nejsou k dispozici ze statemachine. */
+export const DEFAULT_ATTENDANCE_STATES = [
+    { id: "confirmed", name: "Potvrzeno", nameEn: "Confirmed", _default: true },
+    { id: "declined", name: "Odmítnuto", nameEn: "Declined", _default: true },
+    { id: "pending", name: "Čeká", nameEn: "Pending", _default: true },
+]
+
 /** Background barva buňky (jemná) pro matici. */
 export const stateCellColor = (state) => {
     switch (classifyState(state)) {
