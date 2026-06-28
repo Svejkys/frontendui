@@ -3,6 +3,7 @@ import { UpdateButton, UpdateLink } from "./Update"
 import { ProxyLink } from "../../../../_template/src/Base/Components/ProxyLink"
 import { DeleteButton } from "./Delete"
 import { AddStudentButton } from "./AddStudentButton"
+import { RemoveStudentButton } from "./RemoveStudentButton"
 
 export const PageLink = ({ children, preserveHash = true, preserveSearch = true, ...props }) => {
     return (
@@ -24,7 +25,7 @@ export const InteractiveMutations = ({ item }) => {
             <UpdateLink className="btn btn-outline-success" item={item}>Upravit</UpdateLink>
             <UpdateButton className="btn btn-outline-success" item={item}>Upravit Dialog</UpdateButton>
             <AddStudentButton className="btn btn-outline-success" rbacitem={{}} item={item}>Přidat studenta</AddStudentButton>
-            <DeleteButton className="btn btn-outline-danger" item={item}>Odstranit studenta</DeleteButton>
+            <RemoveStudentButton className="btn btn-outline-danger" rbacitem={{}} item={item}>Odstranit studenta</RemoveStudentButton>
         </CardCapsule>
     )
 }

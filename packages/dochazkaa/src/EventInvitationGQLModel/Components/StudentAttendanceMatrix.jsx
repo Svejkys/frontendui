@@ -3,7 +3,8 @@ import { CardCapsule } from "../../EventGQLModel/Components/CardCapsule"
 import { MatrixCell } from "./MatrixCell"
 import { collectAvailableStates, classifyState } from "./stateHelpers"
 import { formatLectureShort } from "./datetime"
-
+import { UserLink } from "../../../../ug/src/Components/User/UserLink"
+ 
 /**
  * DochÃ¡zkovÃ¡ matice: Å™Ã¡dky = studenti, sloupce = vÃ½uky (tÃ©mata).
  *
@@ -17,7 +18,7 @@ export const StudentAttendanceMatrix = ({ events = [], onChanged, title = "DochÃ
         const all = events.flatMap((ev) => ev?.invitations || [])
         return collectAvailableStates(all)
     }, [events])
-
+ 
     const students = useMemo(() => {
         const byId = new Map()
         for (const ev of events) {
@@ -29,7 +30,7 @@ export const StudentAttendanceMatrix = ({ events = [], onChanged, title = "DochÃ
         return [...byId.values()].sort((a, b) =>
             String(a?.fullname ?? "").localeCompare(String(b?.fullname ?? ""), "cs"))
     }, [events])
-
+ 
     const lookup = useMemo(() => {
         const m = new Map()
         for (const ev of events) {
@@ -39,12 +40,12 @@ export const StudentAttendanceMatrix = ({ events = [], onChanged, title = "DochÃ
         }
         return m
     }, [events])
-
+ 
     const sortedEvents = useMemo(
         () => [...events].sort((a, b) => new Date(a?.startdate || 0) - new Date(b?.startdate || 0)),
         [events]
     )
-
+ 
     if (events.length === 0) {
         return (
             <CardCapsule item={{}} title={title}>
@@ -52,7 +53,7 @@ export const StudentAttendanceMatrix = ({ events = [], onChanged, title = "DochÃ
             </CardCapsule>
         )
     }
-
+ 
     if (students.length === 0) {
         return (
             <CardCapsule item={{}} title={title}>
@@ -60,12 +61,12 @@ export const StudentAttendanceMatrix = ({ events = [], onChanged, title = "DochÃ
             </CardCapsule>
         )
     }
-
+ 
     const confirmedCountForStudent = (studentId) =>
         sortedEvents.filter((ev) =>
             classifyState(lookup.get(`${ev.id}__${studentId}`)?.state) === "confirmed"
         ).length
-
+ 
     return (
         <CardCapsule item={{}} title={title}>
             <div className="d-flex flex-wrap gap-2 mb-2 small">
@@ -95,10 +96,9 @@ export const StudentAttendanceMatrix = ({ events = [], onChanged, title = "DochÃ
                         {students.map((student) => (
                             <tr key={student.id}>
                                 <th style={{ position: "sticky", left: 0, background: "#fff", fontWeight: "normal", width: 140 }}>
-                                    <div className="fw-bold">{student.fullname || student.id}</div>
-                                    {student.email && (
-                                        <div className="small text-muted">{student.email}</div>
-                                    )}
+                                    <div className="fw-bold">
+                                        <UserLink user={student}>{student.fullname || student.id}</UserLink>
+                                    </div>
                                 </th>
                                 {sortedEvents.map((ev) => (
                                     <MatrixCell

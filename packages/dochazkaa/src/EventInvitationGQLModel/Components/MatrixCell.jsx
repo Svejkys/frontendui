@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useAsyncThunkAction } from "../../../../dynamic/src/Hooks/useAsyncThunkAction"
 import { UpdateAsyncAction } from "../Queries/UpdateAsyncAction"
-import { stateCellColor, stateSymbol } from "./stateHelpers"
+import { stateCellColor, stateSymbol, stateSymbolColor } from "./stateHelpers"
 
 /**
  * Jedna buňka docházkové matice (průsečík student × výuka).
@@ -42,7 +42,7 @@ export const MatrixCell = ({ invitation, availableStates = [], onChanged }) => {
             }}
             title={invitation?.state?.name || ""}
         >
-            <div style={{ fontWeight: "bold", lineHeight: 1 }}>
+            <div style={{ fontWeight: "bold", lineHeight: 1, color: stateSymbolColor(invitation?.state) }}>
                 {stateSymbol(invitation?.state)}
             </div>
             <select
@@ -52,12 +52,15 @@ export const MatrixCell = ({ invitation, availableStates = [], onChanged }) => {
                 disabled={loading}
                 onChange={handleChange}
             >
-                {!availableStates.some((s) => s.id === currentStateId) && (
-                    <option value={currentStateId || ""}>{stateSymbol(invitation?.state)}</option>
-                )}
+                 {!availableStates.some((s) => s.id === currentStateId) && (
+                    <option value={currentStateId || ""} style={{ color: stateSymbolColor(invitation?.state) }}>{stateSymbol(invitation?.state)}</option>
+                )} 
                 {availableStates.map((st) => (
-                    <option key={st.id} value={st.id} title={st.name}>{stateSymbol(st)}</option>
+                    <option key={st.id} value={st.id} title={st.name} style={{ color: stateSymbolColor(st) }}>{stateSymbol(st)}</option>
                 ))}
+                <option value="">✅</option>
+                <option value="">❌</option>
+                <option value="">❓</option>
             </select>
         </td>
     )

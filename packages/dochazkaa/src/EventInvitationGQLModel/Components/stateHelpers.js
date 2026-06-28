@@ -24,10 +24,27 @@ const PENDING_KEYS = [
 ]
 
 /**
+ * Explicitní mapování názvu stavu → význam. Použije se PŘEDNOSTNĚ před
+ * heuristikou níže. Sem doplň skutečné názvy stavů z tvého systému, aby se
+ * správně obarvily (✓ zeleně, ✕ červeně, ? modře).
+ *
+ * Hodnota je jedna z: "confirmed" | "declined" | "pending"
+ * Klíče se porovnávají bez ohledu na velikost písmen a okolní mezery.
+ */
+const STATE_SEMANTIC_OVERRIDES = {
+    // "název stavu v systému": "confirmed" | "declined" | "pending"
+    // "schváleno": "confirmed",
+    // "zamítnuto": "declined",
+    // "žadatel": "pending",
+}
+
+/**
  * @param {{name?: string, nameEn?: string}|null|undefined} state
  * @returns {"confirmed"|"declined"|"pending"|"neutral"}
  */
 export const classifyState = (state) => {
+    const override = STATE_SEMANTIC_OVERRIDES[norm(state?.name)] ?? STATE_SEMANTIC_OVERRIDES[norm(state?.nameEn)]
+    if (override) return override
     const hay = `${norm(state?.name)} ${norm(state?.nameEn)}`
     if (CONFIRMED_KEYS.some((k) => hay.includes(k))) return "confirmed"
     if (DECLINED_KEYS.some((k) => hay.includes(k))) return "declined"
@@ -45,26 +62,18 @@ export const stateVariant = (state) => {
     }
 }
 
-/**
- * Explicitní mapování názvu stavu → symbol. Použije se přednostně před
- * heuristikou `classifyState`, takže funguje i pro stavy, jejichž název
- * neobsahuje rozpoznatelná klíčová slova (např. workflow stavy).
- *
- * Klíče se porovnávají bez ohledu na velikost písmen a okolní mezery.
- * Doplň/uprav řádky podle skutečných názvů stavů.
- */
-const STATE_SYMBOL_OVERRIDES = {
-    // "název stavu": "✓" | "✕" | "•"
-    // "schvalovatel": "✓",
-    // "archiv": "✕",
-    // "žadatel": "•",
+/** Barva symbolu pro buňku matice: ✓ zelená, ✕ červená, ? modrá, • šedá. */
+export const stateSymbolColor = (state) => {
+    switch (classifyState(state)) {
+        case "confirmed": return "#198754" // zelená
+        case "declined": return "#dc3545"  // červená
+        case "pending": return "#6c757d"   // šedá (•)
+        default: return "#0d6efd"          // modrá (?)
+    }
 }
 
 /** Krátký symbol pro buňku matice. */
 export const stateSymbol = (state) => {
-    const override = STATE_SYMBOL_OVERRIDES[norm(state?.name)] ?? STATE_SYMBOL_OVERRIDES[norm(state?.nameEn)]
-    if (override) return override
-
     switch (classifyState(state)) {
         case "confirmed": return "✓"
         case "declined": return "✕"
