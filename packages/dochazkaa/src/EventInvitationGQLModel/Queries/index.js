@@ -7,5 +7,6 @@ export { EventAttendanceReadAsyncAction } from './EventAttendanceReadAsyncAction
 export { EventsAttendanceReadAsyncAction } from './EventsAttendanceReadAsyncAction'
 export { MasterEventChildrenReadAsyncAction } from './MasterEventChildrenReadAsyncAction'
 export { StudyPlanAttendanceReadAsyncAction } from './StudyPlanAttendanceReadAsyncAction'
+export { AttendanceStatesReadAsyncAction, ATTENDANCE_STATEMACHINE_ID } from './AttendanceStatesReadAsyncAction'
 export { SearchUsersAsyncAction } from './SearchUsersAsyncAction'
 export * from './Fragments'

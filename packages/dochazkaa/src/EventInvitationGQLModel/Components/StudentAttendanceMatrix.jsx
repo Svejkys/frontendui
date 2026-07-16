@@ -14,12 +14,26 @@ import { Link as StudyPlanLink } from "../../StudyPlanGQLModel/Components/Link"
  * @param {() => void} [props.onChanged] - znovunačtení po změně stavu
  * @param {string} [props.title="Docházková matice"]
  * @param {object} [props.studyPlan] - studijní plán, na který odkazují hlavičky sloupců (témat)
+ * @param {Array<object>} [props.availableStates] - stavy do dropdownu; mají přednost
+ *   před stavy odvozenými z pozvánek (ty jsou prázdné, dokud pozvánka nemá stav)
+ * @param {Map<string, string>} [props.pendingChanges] - neuložené výběry (invitationId → stateId)
+ * @param {(invitationId: string, stateId: string) => void} [props.onStage] - ohlášení výběru rodiči
  */
-export const StudentAttendanceMatrix = ({ events = [], onChanged, title = "Docházková matice", editable = false, studyPlan }) => {
+export const StudentAttendanceMatrix = ({
+    events = [],
+    onChanged,
+    title = "Docházková matice",
+    editable = false,
+    studyPlan,
+    availableStates: availableStatesProp,
+    pendingChanges,
+    onStage,
+}) => {
     const availableStates = useMemo(() => {
+        if (availableStatesProp?.length) return availableStatesProp
         const all = events.flatMap((ev) => ev?.invitations || [])
         return collectAvailableStates(all)
-    }, [events])
+    }, [availableStatesProp, events])
  
     const students = useMemo(() => {
         const byId = new Map()
@@ -106,15 +120,19 @@ export const StudentAttendanceMatrix = ({ events = [], onChanged, title = "Doch�
                                         <UserLink user={student}>{student.fullname || student.id}</UserLink>
                                     </div>
                                 </th>
-                                {sortedEvents.map((ev) => (
-                                    <MatrixCell
-                                        key={`${ev.id}__${student.id}`}
-                                        invitation={lookup.get(`${ev.id}__${student.id}`)}
-                                        availableStates={availableStates}
-                                        onChanged={onChanged}
-                                        editable={editable}
-                                    />
-                                ))}
+                                {sortedEvents.map((ev) => {
+                                    const invitation = lookup.get(`${ev.id}__${student.id}`)
+                                    return (
+                                        <MatrixCell
+                                            key={`${ev.id}__${student.id}`}
+                                            invitation={invitation}
+                                            availableStates={availableStates}
+                                            editable={editable}
+                                            pendingStateId={invitation?.id ? pendingChanges?.get(invitation.id) : undefined}
+                                            onStage={onStage}
+                                        />
+                                    )
+                                })}
                                 <td className="text-center small text-success">
                                     {confirmedCountForStudent(student.id)} / {sortedEvents.length}
                                 </td>

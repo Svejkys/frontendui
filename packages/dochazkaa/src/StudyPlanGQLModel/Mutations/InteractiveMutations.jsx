@@ -23,7 +23,6 @@ export const InteractiveMutations = ({ item }) => {
     return (
         <CardCapsule item={item} title="Nástroje">
             <UpdateLink className="btn btn-outline-success" item={item}>Upravit</UpdateLink>
-            <UpdateButton className="btn btn-outline-success" item={item}>Upravit Dialog</UpdateButton>
             <AddStudentButton className="btn btn-outline-success" rbacitem={{}} item={item}>Přidat studenta</AddStudentButton>
             <RemoveStudentButton className="btn btn-outline-danger" rbacitem={{}} item={item}>Odstranit studenta</RemoveStudentButton>
         </CardCapsule>

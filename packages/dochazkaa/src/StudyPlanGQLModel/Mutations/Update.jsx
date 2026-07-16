@@ -12,7 +12,7 @@ const DefaultContent = (props) => <MediumEditableContent {...props} />
 const mutationAsyncAction = UpdateAsyncAction
 
 const permissions = {
-    oneOfRoles: ["studijní administrátor"],
+    oneOfRoles: ["studijní administrátor", "plánovací administrátor"],
     mode: "absolute",
 }
 

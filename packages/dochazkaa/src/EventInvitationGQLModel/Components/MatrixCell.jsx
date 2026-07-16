@@ -1,90 +1,66 @@
-import { useState, useMemo } from "react"
-import { useAsyncThunkAction } from "../../../../dynamic/src/Hooks/useAsyncThunkAction"
-import { UpdateAsyncAction } from "../Queries/UpdateAsyncAction"
-import { stateCellColor, stateEmoji, classifyState } from "./stateHelpers"
+import { stateCellColor, stateEmoji } from "./stateHelpers"
 
 /**
  * Jedna buňka docházkové matice (průsečík student × výuka).
  *
- * Pokud pro daný průsečík existuje pozvánka, zobrazí barevnou buňku s emoji.
- * V editačním režimu (editable=true) zobrazí dropdown pro změnu stavu.
+ * V editačním režimu nabídne stavy docházkového automatu. Výběr se neukládá
+ * hned – ohlásí se rodiči přes `onStage` a odešle se až tlačítkem "Uložit
+ * změny". Dokud změna není uložená, je buňka orámovaná.
+ *
+ * @param {object} props
+ * @param {object} [props.invitation] - pozvánka na průsečíku (nemusí existovat)
+ * @param {Array<object>} [props.availableStates] - stavy nabízené v dropdownu
+ * @param {boolean} [props.editable] - vykreslit dropdown místo statického emoji
+ * @param {string} [props.pendingStateId] - dosud neuložený výběr z rodiče
+ * @param {(invitationId: string, stateId: string) => void} [props.onStage]
  */
-export const MatrixCell = ({ invitation, availableStates = [], onChanged, editable = false }) => {
-    const { run, loading } = useAsyncThunkAction(UpdateAsyncAction, undefined, { deferred: true })
-    const [error, setError] = useState(false)
-    const [localState, setLocalState] = useState(null)
-
-    const states = useMemo(() => {
-        if (availableStates.length > 0) return availableStates
-        const machineStates = invitation?.state?.statemachine?.states || []
-        if (machineStates.length > 0) return machineStates
-        return []
-    }, [availableStates, invitation])
-
+export const MatrixCell = ({
+    invitation,
+    availableStates = [],
+    editable = false,
+    pendingStateId,
+    onStage,
+}) => {
     if (!invitation) {
         return <td style={{ textAlign: "center", color: "#ccc" }}>–</td>
     }
 
-    const currentStateId = invitation?.stateId || invitation?.state?.id
-    const displayState = localState || invitation?.state
+    const savedStateId = invitation?.stateId || invitation?.state?.id || ""
+    const selectedStateId = pendingStateId ?? savedStateId
+    const dirty = pendingStateId !== undefined && pendingStateId !== savedStateId
 
-    const handleChange = async (e) => {
-        const stateId = e.target.value
-        if (!stateId || stateId === currentStateId) return
+    const displayState =
+        availableStates.find((st) => st.id === selectedStateId) || invitation?.state
 
-        const newState = states.find(s => s.id === stateId)
-        setLocalState(newState)
-        setError(false)
-
-        try {
-            await run({ id: invitation.id, lastchange: invitation.lastchange, stateId })
-            if (onChanged) onChanged()
-        } catch {
-            setError(true)
-            setLocalState(null)
-        }
-    }
-
-    const handleLocalChange = (value) => {
-        setLocalState({ name: value, nameEn: value })
-    }
+    // Bez znalosti stavů není co nabídnout – jakýkoliv výběr by nešlo uložit,
+    // protože mutace vyžaduje UUID skutečného stavu. Buňka zůstane jen ke čtení
+    // a důvod vysvětlí rodič.
+    const canEdit = editable && availableStates.length > 0
 
     return (
         <td
             style={{
-                backgroundColor: error ? "#ffe0e0" : stateCellColor(displayState),
+                backgroundColor: stateCellColor(displayState),
                 textAlign: "center",
                 padding: "4px",
                 minWidth: 60,
+                outline: dirty ? "2px solid #0d6efd" : undefined,
+                outlineOffset: dirty ? "-2px" : undefined,
             }}
-            title={displayState?.name || ""}
+            title={displayState?.name || "Bez stavu"}
         >
-            {editable ? (
-                states.length > 0 ? (
-                    <select
-                        className="form-select form-select-sm"
-                        style={{ fontSize: "1rem", padding: "2px 4px", minWidth: 50, textAlign: "center" }}
-                        value={currentStateId || ""}
-                        disabled={loading}
-                        onChange={handleChange}
-                    >
-                        {states.map((st) => (
-                            <option key={st.id} value={st.id}>{stateEmoji(st)}</option>
-                        ))}
-                    </select>
-                ) : (
-                    <select
-                        className="form-select form-select-sm"
-                        style={{ fontSize: "1rem", padding: "2px 4px", minWidth: 50, textAlign: "center" }}
-                        value={classifyState(displayState)}
-                        disabled={loading}
-                        onChange={(e) => handleLocalChange(e.target.value)}
-                    >
-                        <option value="confirmed">✅</option>
-                        <option value="declined">❌</option>
-                        <option value="pending">❓</option>
-                    </select>
-                )
+            {canEdit ? (
+                <select
+                    className="form-select form-select-sm"
+                    style={{ fontSize: "1rem", padding: "2px 4px", minWidth: 50, textAlign: "center" }}
+                    value={selectedStateId}
+                    onChange={(e) => onStage?.(invitation.id, e.target.value)}
+                >
+                    {!savedStateId && <option value="">–</option>}
+                    {availableStates.map((st) => (
+                        <option key={st.id} value={st.id}>{stateEmoji(st)}</option>
+                    ))}
+                </select>
             ) : (
                 <div style={{ fontSize: "1.2rem" }}>{stateEmoji(displayState)}</div>
             )}
