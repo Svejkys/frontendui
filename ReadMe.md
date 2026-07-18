@@ -1,29 +1,120 @@
-# Změny
+# Deníček projektu – Docházkový systém (`app_dochazka`)
+**Autor:** Jakub Vitásek (Svejkys), Lukáš Pavlis
 
-## 11. 5. 2026
 
-### Úprava Update mutace pro EventGQLModel
+Tento dokument je deník celého průběhu vývoje projektu od prvního commitu až po stav před závěrečnou obhajobou. Zachycuje časovou posloupnost commitů, problémy, které jsme si definovali k vyřešení, co jsme při tom objevili, a hlavně které problémy se dlouho nedařilo řešit a jak byly nakonec vyřešeny.
 
-Dnes byla doplněna a otestována frontendová část pro úpravu entity `EventGQLModel`.
+---
 
-### Upravené soubory
+##  Definice problému – co má aplikace umět
 
-- `packages/dochazkaa/src/EventGQLModel/Queries/UpdateAsyncAction.jsx`
-- `packages/dochazkaa/src/EventGQLModel/Queries/DeleteAsyncAction.jsx`
-- `packages/dochazkaa/src/EventGQLModel/Components/MediumEditableContent.jsx`
-- soubory v části `Mutations`, kde se řešilo zobrazení tlačítek pro práci s entitou
+Tématem projektu je **evidence docházky studentů na výuku**. Zadání jsem si na začátku semestru definoval podle přednášek takto:
 
-### Co bylo upraveno
+- **`EventGQLModel` (událost)** = konkrétní výuka: název předmětu, datum a čas výuky (např. od 14:30 do 16:00 mám hodinu). Události jsou stavební bloky předmětu v daném semestru.
+- **`EventInvitationGQLModel` (pozvánka)** = relace mezi hodinou a pozvanou osobou – funguje jako pozvánka na online hodinu v Teams. Osoba se může zúčastnit, nereagovat, nebo účast odmítnout.
+- Ze stavu pozvánky (`state`) zjistím zda se student zúčastnil nebo ne.
+- Aplikace musí umět zobrazit docházku na předmět jako celek!!
+- Z hlediska editace musím být schopen **otevřít studijní plán a zapisovat „byl / nebyl"** – např. u skupiny 30 lidí si nejdřív zapíšu jména a pak označuji, kdo byl.
+- Důležité: **pozvánky nejsou studijní skupiny** – docházka se váže na konkrétní událost, ne na skupinu.
 
-Byla opravena update mutace pro entitu `EventGQLModel`.
+Z toho vyplynuly hlavní problémy k vyřešení:
 
-Původně byla v části update použita nesprávná mutace pro jiný typ entity. Nyní je připravena mutace:
+1. Zobrazit entity `Event`, `EventInvitation`, `StudyPlan` a `StudyPlanLesson` (readonly stránky).
+2. Umožnit jejich editaci pomocí GraphQL mutací (writable stránky) – změna atributu ve webovém rozhraní se musí promítnout do databáze.
+3. Postavit docházkovou matici (řádky = výuky, sloupce = studenti, buňka = stav účasti).
+4. Přidávat a odebírat studenty ze studijního plánu.
+5. Publikovat balíček na npm a zabezpečit publikaci aplikace.
 
-```graphql
-mutation eventUpdate(
-  $id: UUID!
-  $lastchange: DateTime!
-  $name: String
-  $nameEn: String
-  $description: String
-)
+---
+
+## Deník – časová posloupnost commitů
+
+### Březen – založení projektu
+
+**31. 3. 2026** – „pridani potrebneho"
+Fork repozitáře `hrbolek/frontendui`, přechod na větev `monorepo`. Podle vzoru jsem si zkopíroval šablonu `_template` do vlastního balíčku `packages/vitasekJakub`.
+
+### Duben – vlastní aplikace, skalární a vektorové atributy
+
+**1. 4. 2026 – „Upravy"**
+Vznik **`apps/app_dochazka`** (App, AppNavbar, AppRouter, vite config) a knihovna **`packages/dochazkaa`** s prvním modelem `EventGQLModel` vytvořeným ze šablony (Components, Mutations, Pages, Queries, Scalars, Vectors).
+
+**9. 4. 2026 – poznámky z hodiny (bez commitu)**
+Řešíme **skalární a vektorové atributy**. Vše už je vytvořené – fragmenty v link queries vytvářejí dotazy já si je jen upravuji a zobrazují se v `MediumContent`.
+
+**13. 4. 2026 – „update"**
+Přepracování `MediumContent.jsx` a `Fragments.jsx` pro `EventGQLModel` – zobrazení skalárních atributů události.
+
+**14. 4. 2026 – „utery_nanovo"**
+projekt nutno přepracovat nově. Špatné pochopení projektu a použití main modelu. Dokončily se vektorové atributy (`VectorAttribute`, `TemplateVectorsAttribute`) a vznikl EventInvitationGQLModel (Fragments, InsertAsyncAction, ReadAsyncAction, Link, CreatePage). 
+
+### Květen – mutace, projektový den, boj s npm
+
+**11. 5. 2026** – neuspesny pokus o mutace → „you are not authorized"
+Den dokládání mutací. Podle poznámek z hodiny: mutace = 4 prvky životního cyklu entity (**C**reate, **R**ead, **U**pdate, **D**elete); u update musí být identifikátor a správný `lastchange` a potom atributy, které měníme. U delete stačí `id` + `lastchange` (MUSÍME VĚDĚT CO MAŽEME). 
+
+Update mutace pro `EventGQLModel` nejdřív nefungovala (byla použita nesprávná mutace pro jiný typ entity), po opravě přišla chyba **„you are not authorized"**.
+
+**13. 5. 2026** – „upravy na projektovy den" + vytvořen StudyPlanGQLModel *(projektový den)*
+Úklid před projektovým dnem: **smazán nefunkční první pokus o `EventInvitationGQLModel`** ze 14. 4. Odpoledne vznikly ze šablony dva nové modely: **`StudyPlanGQLModel`** a **`StudyPlanLessonGQLModel`** – základ pro zobrazení docházky na předmět jako celek.
+
+**31. 5. 2026** – Commity token1 až token6
+Šest commitů během dvaceti minut – boj s publikací balíčku na npm. Postupné ladění `package.json` a `package-lock.json` (název balíčku, verze, závislosti, přístupový token), dokud publikace přes GitHub Actions neprošla. Vyřešeno metodou pokus–omyl.
+
+### Červen – docházková matice a přidávání studentů
+
+**1. 6. 2026** – „Úprava" +  update-zkouska
+druhý, projektový den `EventInvitationGQLModel`. Vznikly komponenty `AttendanceButtons`, `AttendanceMatrix`, `EventAttendance`, `MatrixCell`, `stateHelpers`, stránky `PageEventAttendance` a `PageAttendanceMatrix`, sada queries (`EventAttendanceReadAsyncAction`, `EventsAttendanceReadAsyncAction`, `MasterEventChildrenReadAsyncAction`…)
+
+**2. 6. 2026** – Přidávání jmen
+Vyhledávání a **přidávání studentů podle jména** (`UserSearch`, `SearchUsersAsyncAction`), první verze `StudyPlanAttendance` a `StudyPlanOverview`. Do commitu se omylem přibalil i celý rozpracovaný `StateMachineGQLModel` ze šablony, který se ukázal jako zbytečný.
+
+**6. 6. 2026** – Matrix corrected
+Vznikla finální **`StudentAttendanceMatrix`**.  Objev: stavy účasti stačí číst z pozvánek, není nutné tahat do knihovny celý model stavového automatu.
+
+**11. 6. 2026** – Úprava tlačítek
+Tlačítko **`AddStudentButton`** (pozvání studenta), zjednodušení insert queries u `Event` a `EventInvitation`, opravy mutací Create/Update/Delete u `StudyPlanGQLModel`.
+
+**14. 6. 2026** – Vzhledová úprava stránky pro zobrazení co největší matice (Třídní knihy). Upravit, Přidat studenta a Odstranit studenta přidáno do horní části stránky místo nalevo v LargeCard
+
+**23. 6. 2026** – „Male upravy"**
+Drobné úpravy v `stateHelpers` (rozpoznávání stavů podle názvu).
+
+**28. 6. 2026** – „emoji added" + „Functional edits" + „npm update"
+Buňky matice dostaly emoji/barevné vyjádření stavů (✓ potvrzeno, ✕ omluven/odmítnuto, • čeká), Namísto natvrdo přidaných dat z dokumentace jako "Proděkan", "Děkan"... Přibylo tlačítko **`RemoveStudentButton`** pro odebrání studenta a zprovozněny funkční editace přímo v matici. 
+Aktualizace verze balíčku na npm.
+
+### Červenec – uložení změn, finalizace před obhajobou
+
+**16. 7. 2026** –  „Možnost uložení provedení změn"
+Poslední velká funkce: změny v docházkové matici se **neukládají po jedné, ale hromadně** – neuložené výběry se drží v mapě `pendingChanges` (`invitationId → stateId`) a odešlou se najednou tlačítkem Uložit. Přibyla query `AttendanceStatesReadAsyncAction` pro načtení stavů docházkového stavového automatu. Při tom byl vyřešen poslední záludný problém s ručním dispatchem AsyncAction.
+
+---
+
+## Problémy, které se nedařilo řešit – a jak byly nakonec vyřešeny
+
+**1. Nefunkční update mutace (11. 5.)**
+`neuspesny pokus o mutace`. V `UpdateAsyncAction.jsx` byla omylem použita mutace pro jiný typ entity, takže update `EventGQLModel` nefungoval. 
+**Řešení:** přepsat mutaci správně – `eventUpdate($id: UUID!, $lastchange: DateTime!, $name, $nameEn, $description)`. Klíčové bylo pochopit roli parametrů **`id` a `lastchange`** – `lastchange` chrání před souběžnými updaty (concurrent update): když entitu mezitím změnil někdo jiný, mutace se odmítne.
+
+**3. Publikace na npm (31. 5.)**
+Šest commitů `token` až `token6`. Publikace balíčku přes GitHub Actions opakovaně padala na konfiguraci `package.json` a přístupovém tokenu. **Řešení:** postupné ladění metodou pokus–omyl (název/verze balíčku, závislosti, token), dokud workflow neprošlo.
+
+**4. Slepá ulička: první `EventInvitationGQLModel` (14. 4. → 13. 5.)**
+První verze modelu pozvánek vznikla „na divoko" mimo strukturu šablony (soubory přímo v kořeni modelu, bez Pages/Components/Queries). Nedařilo se ji rozumně napojit na zbytek aplikace, proto byla 13. 5. **celá smazána** a 1. 6. postavena znovu a pořádně podle struktury šablony.
+
+**5. Zbytečný `StateMachineGQLModel` (2. 6. → 6. 6.)**
+Pro práci se stavy účasti jsem si vygeneroval celý model stavového automatu, ale ukázalo se, že ho vůbec nepotřebuji – stavy jdou číst přímo z pozvánek a jejich sémantika se dá určit heuristikou podle názvu (`stateHelpers.js`: potvrzeno/odmítnuto/čeká). **Řešení:** celý model smazat a nechat jen malý pomocný soubor.
+
+**7. „utery_nanovo" (14. 4.)**
+Ztracená/rozbitá úterní práce, kterou bylo nutné udělat znovu. Od té doby commituju častěji.
+
+---
+
+## 💡 Co jsem během semestru objevil
+
+- **Voyager** nejrychlejší cesta, jak pochopit GraphQL schéma
+- **Fragmenty řídí queries**: v link queries definuji fragmentem, co chci vrátit, a komponenty (`MediumContent`, `MediumEditableContent`) to jen zobrazí. Úprava fragmentu = úprava celé stránky.
+- Dvojice **`id` + `lastchange`** je základ všech mutací typu update/delete – bez ní backend změnu odmítne.
+- Základní typy atributů (string, integer, float, boolean…) mapuji na vstupní prvky formuláře: textové pole, číselné pole, datové pole, checkbox, radiobutton.
+- Šablona `_template` obsahuje předpřipravené funkce 
