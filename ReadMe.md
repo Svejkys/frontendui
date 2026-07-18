@@ -89,6 +89,12 @@ Aktualizace verze balíčku na npm.
 **16. 7. 2026** –  „Možnost uložení provedení změn"
 Poslední velká funkce: změny v docházkové matici se **neukládají po jedné, ale hromadně** – neuložené výběry se drží v mapě `pendingChanges` (`invitationId → stateId`) a odešlou se najednou tlačítkem Uložit. Přibyla query `AttendanceStatesReadAsyncAction` pro načtení stavů docházkového stavového automatu. Při tom byl vyřešen poslední záludný problém s ručním dispatchem AsyncAction.
 
+**16. 7. 2026** –  „Odstranění zbytečných řádků kódu"
+Všiml jsem si, že je program díky chybám, které jsem v průběhu vytváření programů dělal, zbytečně velký.
+Refresh stránky přepíše rbacobject celý. Po úpravě by se už neměli stackovat výpisy rolí na stránku.
+Odstranil jsem zbytečný UserSearch.jsx v EventInvitationGQLModel. Jeho identická a funkční verze je v StudyPlanGQLModel.
+Přidání nezbytných komentářů do kódu, který na funkčnosti hraje největší roli, aby bylo srozumitelné, co program Dělá
+
 ---
 
 ## Problémy, které se nedařilo řešit – a jak byly nakonec vyřešeny
