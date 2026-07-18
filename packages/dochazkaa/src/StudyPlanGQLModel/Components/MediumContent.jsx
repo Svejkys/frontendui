@@ -95,9 +95,16 @@ import { Attribute, formatDateTime } from "../../../../_template/src/Base/Compon
 // }
 
 import { MediumContent as MediumContent_ } from "../../../../_template/src/Base/Components/MediumContent"
-import { name } from "happy-dom/lib/PropertySymbol"
 
 export const MediumContent = ({ item, children}) => {
+    // currentUserRoles má jeden záznam na kombinaci role × skupina, takže stejná
+    // role napříč skupinami se opakuje. Pro výpis nás zajímá jen unikátní název.
+    const roleNames = [...new Set(      //Zde úprava, aby se zobrazily jen unikátní role, ne role × skupina
+        (item?.rbacobject?.currentUserRoles || [])
+            .map(role => role?.roletype?.name)
+            .filter(Boolean)
+    )]
+
     return (
     <>
         <Attribute label="ID">
@@ -115,7 +122,7 @@ export const MediumContent = ({ item, children}) => {
 
 
         <Attribute label={"Moje role"}>
-                {item?.rbacobject?.currentUserRoles?.length > 0 ? item.rbacobject.currentUserRoles.map(role => role.roletype?.name).join(", ") : "Žádné role!"}
+                {roleNames.length > 0 ? roleNames.join(", ") : "Žádné role!"}
         </Attribute>
 
     </>

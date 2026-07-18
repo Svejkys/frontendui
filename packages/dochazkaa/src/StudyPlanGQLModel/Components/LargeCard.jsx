@@ -30,6 +30,12 @@ import { MiddleColumn } from "../../../../_template/src/Base/Components/Col"
  *   <p>Additional content for the middle column.</p>
  * </TemplateLargeCard>
  */
+
+/*
+RÁM CELÉ STRÁNKY studijního plánu — přesně to, co je vidět na
+/dochazka/StudyPlanGQLModel/view/:id:
+*/
+
 const getStudyPlanTitle = (item) => {
     return item?.event?.name ? `Studijni plan: ${item.event.name}` : "Studijni plan"
 }

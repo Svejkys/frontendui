@@ -52,6 +52,13 @@ const ObjectList = ({ items, emptyText = "Žádné položky" }) => {
 export const MediumContent = ({ item, children }) => {
     const subeventsCount = item?.subevents?.length ?? 0
     const userInvitationsCount = item?.userInvitations?.length ?? 0
+    // currentUserRoles vrací záznam na kombinaci role × skupina; pro výpis
+    // stačí unikátní název role, jinak se stejná role opakuje.
+    const roleNames = [...new Set(
+        (item?.rbacobject?.currentUserRoles || [])
+            .map(role => role?.roletype?.name)
+            .filter(Boolean)
+    )]
 
     return (
         <>
@@ -102,7 +109,7 @@ export const MediumContent = ({ item, children }) => {
             </Row>
             
             <Attribute label={"Moje Role"}>
-                {item?.rbacobject?.currentUserRoles?.length > 0 ? item.rbacobject.currentUserRoles.map(role=> role.roletype?.name).join(", ") : "Žádná role"}
+                {roleNames.length > 0 ? roleNames.join(", ") : "Žádná role"}
             </Attribute>
 
             {children}

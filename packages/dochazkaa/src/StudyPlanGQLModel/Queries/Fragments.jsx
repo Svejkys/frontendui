@@ -2,6 +2,21 @@ import { createQueryStrLazy } from "@hrbolek/uoisfrontend-gql-shared"
 import { EventFragment } from "../../EventGQLModel/Queries/Fragments"
 import { StudyPlanLessonFragment } from "../../StudyPlanLessonGQLModel/Queries/Fragments"
 
+/*
+ReadAsyncAction načítá plán v rozsahu fragmentu `Large`
+`event` → hlavní událost plánu (název předmětu v titulku karty),
+`lessons` → stavební bloky předmětu; každá lekce nese (přes
+StudyPlanLessonFragment) svou událost a její `userInvitations`
+— tedy studenty a stavy, ze kterých se staví docházková matice,
+`rbacobject.currentUserRoles` → sekce "Moje role" v detailu.
+ */
+
+/*
+Základní (Link) fragment — identifikace plánu + navázané entity.
+`id` + `lastchange` jsou nutné pro update/delete mutace (concurrent
+update), `eventId`/`semesterId`/`examId` jsou vazby na okolní modely.
+`...Event` a `...StudyPlanLesson` se přibalují z cizích fragmentů
+ */
 const LinkFragmentStr = `
 fragment Link on StudyPlanGQLModel {
 __typename
@@ -23,6 +38,11 @@ lessons {
 }
 `
 
+/*
+ * Střední úroveň — základ + RBAC objekt s rolemi přihlášeného uživatele.
+ * Z `currentUserRoles` se na stránce vypisuje "Moje role" a dá se podle
+ * nich řídit viditelnost editačních tlačítek (zabezpečení aplikace).
+ */
 const MediumFragmentStr = `
 fragment Medium on StudyPlanGQLModel {
   ...Link
@@ -38,6 +58,9 @@ fragment Large on StudyPlanGQLModel {
 }
 `
 
+/*
+ Plný popis role (kdo, v jaké skupině, od–do).
+*/
 const RoleFragmentStr = `
 fragment Role on RoleGQLModel {
     __typename
@@ -63,6 +86,10 @@ fragment Role on RoleGQLModel {
   }
 `
 
+/*
+Role PŘIHLÁŠENÉHO uživatele vůči tomuto plánu (`currentUserRoles`):
+typ role (administrátor…), skupina
+*/
 const RBACFragmentStr = `
 fragment RBRoles on RBACObjectGQLModel {
   __typename

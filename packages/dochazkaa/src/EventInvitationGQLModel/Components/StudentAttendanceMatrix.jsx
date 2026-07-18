@@ -7,17 +7,16 @@ import { UserLink } from "../../../../ug/src/Components/User/UserLink"
 import { Link as StudyPlanLink } from "../../StudyPlanGQLModel/Components/Link"
  
 /**
- * Docházková matice: řádky = studenti, sloupce = výuky (témata).
- *
- * @param {object} props
- * @param {Array<object>} props.events - pole událostí, každá s polem `invitations`
- * @param {() => void} [props.onChanged] - znovunačtení po změně stavu
- * @param {string} [props.title="Docházková matice"]
- * @param {object} [props.studyPlan] - studijní plán, na který odkazují hlavičky sloupců (témat)
- * @param {Array<object>} [props.availableStates] - stavy do dropdownu; mají přednost
- *   před stavy odvozenými z pozvánek (ty jsou prázdné, dokud pozvánka nemá stav)
- * @param {Map<string, string>} [props.pendingChanges] - neuložené výběry (invitationId → stateId)
- * @param {(invitationId: string, stateId: string) => void} [props.onStage] - ohlášení výběru rodiči
+DOCHÁZKOVÁ MATICE — rámeček "DOCHÁZKA" na stránce studijního plánu.
+Řádky = studenti, sloupce = výuky (témata), buňka = stav účasti.
+@param {object} props
+@param {Array<object>} props.events 
+@param {() => void} [props.onChanged] 
+@param {string} [props.title="Docházková matice"]
+@param {object} [props.studyPlan] 
+@param {Array<object>} [props.availableStates] 
+@param {Map<string, string>} [props.pendingChanges]
+@param {(invitationId: string, stateId: string) => void} [props.onStage] 
  */
 export const StudentAttendanceMatrix = ({
     events = [],
@@ -35,6 +34,7 @@ export const StudentAttendanceMatrix = ({
         return collectAvailableStates(all)
     }, [availableStatesProp, events])
  
+    // Řádky matice: unikátní studenti
     const students = useMemo(() => {
         const byId = new Map()
         for (const ev of events) {
@@ -47,6 +47,8 @@ export const StudentAttendanceMatrix = ({
             String(a?.fullname ?? "").localeCompare(String(b?.fullname ?? ""), "cs"))
     }, [events])
  
+    // Index pozvánek pro O(1) přístup k buňce: klíč "eventId__userId" -> pozvánka.
+    // Bez něj by každá buňka procházela všechny pozvánky (O(n) na buňku).
     const lookup = useMemo(() => {
         const m = new Map()
         for (const ev of events) {
@@ -57,11 +59,13 @@ export const StudentAttendanceMatrix = ({
         return m
     }, [events])
  
+    // Sloupce matice: výuky chronologicky podle začátku.
     const sortedEvents = useMemo(
         () => [...events].sort((a, b) => new Date(a?.startdate || 0) - new Date(b?.startdate || 0)),
         [events]
     )
  
+    // Prázdné stavy: bez výuk / bez pozvaných studentů → vysvětlující hláška
     if (events.length === 0) {
         return (
             <CardCapsule item={{}} title={title}>
@@ -78,6 +82,7 @@ export const StudentAttendanceMatrix = ({
         )
     }
  
+    // Sloupec "Celkem": kolik výuk má student POTVRZENÝCH 
     const confirmedCountForStudent = (studentId) =>
         sortedEvents.filter((ev) =>
             classifyState(lookup.get(`${ev.id}__${studentId}`)?.state) === "confirmed"
@@ -94,9 +99,11 @@ export const StudentAttendanceMatrix = ({
                 <table className="table table-sm table-bordered align-middle" style={{ tableLayout: "fixed", width: "auto" }}>
                     <thead>
                         <tr>
+                            {/* první sloupec drží jména studentů viditelná */}
                             <th style={{ position: "sticky", left: 0, background: "#fff", width: 140 }}>
                                 Student \ Výuka
                             </th>
+                            {/* Hlavička sloupce: název výuky */}
                             {sortedEvents.map((ev) => (
                                 <th key={ev.id} style={{ fontSize: "0.78rem", verticalAlign: "bottom", width: 90, tableLayout: "fixed" }}>
                                     <div className="fw-bold">
@@ -113,6 +120,7 @@ export const StudentAttendanceMatrix = ({
                         </tr>
                     </thead>
                     <tbody>
+                        {/* Jeden řádek = jeden student */}
                         {students.map((student) => (
                             <tr key={student.id}>
                                 <th style={{ position: "sticky", left: 0, background: "#fff", fontWeight: "normal", width: 140 }}>
@@ -133,6 +141,7 @@ export const StudentAttendanceMatrix = ({
                                         />
                                     )
                                 })}
+                                {/* Souhrn řádku: potvrzené / všechny výuky */}
                                 <td className="text-center small text-success">
                                     {confirmedCountForStudent(student.id)} / {sortedEvents.length}
                                 </td>
