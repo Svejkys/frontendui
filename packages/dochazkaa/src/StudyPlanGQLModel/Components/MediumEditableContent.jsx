@@ -171,23 +171,7 @@ export const MediumEditableContent = ({ item, program, onSelect, onChange, child
 
     return (
         <>
-            <h4>Přidat studenta</h4>
-            <UserInputSearch onSelect={handleSelect} />
-            {selectedUser && (
-                <div className="mt-2">
-                    <span className="me-2">Vybraný: <strong>{selectedUser.fullname || selectedUser.email}</strong></span>
-                    <button
-                        className="btn btn-sm btn-primary"
-                        onClick={handleOk}
-                        disabled={saving}
-                    >
-                        {saving ? "Ukládám..." : "Přidat do všech lekcí"}
-                    </button>
-                </div>
-            )}
-            {message && <div className="alert alert-success mt-2">{message}</div>}
-            {error && <div className="alert alert-danger mt-2">{error}</div>}
-
+           
             <hr className="my-4" />
 
             {statesLoading && <div className="text-muted mb-2">Načítám stavy docházky…</div>}
@@ -197,12 +181,6 @@ export const MediumEditableContent = ({ item, program, onSelect, onChange, child
                     <pre className="mb-0 mt-2 small">{statesError?.message || String(statesError)}</pre>
                 </div>
             )}
-            {statesUnavailable && (
-                <div className="alert alert-warning">
-                    Stavový automat <code>{ATTENDANCE_STATEMACHINE_ID}</code> se načetl, ale nemá žádné stavy.
-                </div>
-            )}
-
             <div className="d-flex flex-wrap gap-2 align-items-center mb-2">
                 <button
                     className="btn btn-primary"

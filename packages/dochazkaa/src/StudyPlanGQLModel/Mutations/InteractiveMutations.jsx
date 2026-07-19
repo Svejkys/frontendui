@@ -18,7 +18,6 @@ export const PageLink = ({ children, preserveHash = true, preserveSearch = true,
     );
 };
 
-
 export const InteractiveMutations = ({ item }) => {
     return (
         <CardCapsule item={item} title="Nástroje">
