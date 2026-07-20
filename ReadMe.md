@@ -136,5 +136,4 @@ async def event_invitation_update
 - **Voyager** nejrychlejší cesta, jak pochopit GraphQL schéma
 - **Fragmenty řídí queries**: v link queries definuji fragmentem, co chci vrátit, a komponenty (`MediumContent`, `MediumEditableContent`) to jen zobrazí. Úprava fragmentu = úprava celé stránky.
 - Dvojice **`id` + `lastchange`** je základ všech mutací typu update/delete – bez ní backend změnu odmítne.
-- Základní typy atributů (string, integer, float, boolean…) mapuji na vstupní prvky formuláře: textové pole, číselné pole, datové pole, checkbox, radiobutton.
-- Šablona `_template` obsahuje předpřipravené funkce 
+- Úuprava backendu řeší polovinu problémů
