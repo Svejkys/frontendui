@@ -124,6 +124,8 @@ Ztracená/rozbitá úterní práce, kterou bylo nutné udělat znovu. Od té dob
 "Potřebujete vytvořit událost, na které ty osoby zvete, a tím se stanete organizer". Jenomže v souboru `EventInvitationGQLModel.py`, který jsem si stáhl z dockeru gqlOffice je NATVRDO stanovené id organizera, tedy "Pokud je to tenhle state, pak jsi organizer". Musím si vytvořit pozvánku, ve které jsem organizátor. Musel jsem na backendu `pgAdmin 4` vložit natvrdo stanovené ID organizera, až v tento moment mi po refreshi stránky fungovaly mutace, které tuto roli vyžadovaly.
 
 `EventInvitationGQLModel.py`
+
+
 async def event_invitation_update
 (organizer_id = IDType("3265a488-bbfa-4c59-946c-7a7b059ee4f0")
 
