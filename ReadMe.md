@@ -89,7 +89,18 @@ Aktualizace verze balíčku na npm.
 **16. 7. 2026** –  „Možnost uložení provedení změn"
 Poslední velká funkce: změny v docházkové matici se **neukládají po jedné, ale hromadně** – neuložené výběry se drží v mapě `pendingChanges` (`invitationId → stateId`) a odešlou se najednou tlačítkem Uložit. Přibyla query `AttendanceStatesReadAsyncAction` pro načtení stavů docházkového stavového automatu. Při tom byl vyřešen poslední záludný problém s ručním dispatchem AsyncAction.
 
----
+**18. 7. 2026** –  „Odstranění zbytečných řádků kódu"
+Všiml jsem si, že je program díky chybám, které jsem v průběhu vytváření programů dělal, zbytečně velký.
+Refresh stránky přepíše rbacobject celý. Po úpravě by se už neměli stackovat výpisy rolí na stránku.
+Odstranil jsem zbytečný UserSearch.jsx v EventInvitationGQLModel. Jeho identická a funkční verze je v StudyPlanGQLModel.
+Přidání nezbytných komentářů do kódu, který na funkčnosti hraje největší roli, aby bylo srozumitelné, co program Dělá
+
+**19. 7. 2026** – „Pilování programu"
+Program měl v sobě další skvělou supr čupr funkci, která mi byla naprosto k ničemu. Měl jsem možnost Přidat studenta v editable režimu znovu, i když už tam mutace pro to je vytvořena. Tato funkce byla odstraněna a význam mutace Upravit tedy spočívá ve změně State jednotlivých studentů na danou výuku, jak bylo zamýšleno. Jako další významná úprava bylo přidání plánovacího administrátora natvrdo do systemdata.hk2026. Před touto akcí byla nutnost v GraphiQL nonstop insertovat tuto roli do kódu pokaždé, co se vypl Docker.
+
+> *Úpravy proběhly v souboru `MediumEditableContent.jsx` a `systemdata.hk2026.json`*
+> *Podařilo se mi získat roli organizera*
+
 
 ## Problémy, které se nedařilo řešit – a jak byly nakonec vyřešeny
 
@@ -97,17 +108,26 @@ Poslední velká funkce: změny v docházkové matici se **neukládají po jedn�
 `neuspesny pokus o mutace`. V `UpdateAsyncAction.jsx` byla omylem použita mutace pro jiný typ entity, takže update `EventGQLModel` nefungoval. 
 **Řešení:** přepsat mutaci správně – `eventUpdate($id: UUID!, $lastchange: DateTime!, $name, $nameEn, $description)`. Klíčové bylo pochopit roli parametrů **`id` a `lastchange`** – `lastchange` chrání před souběžnými updaty (concurrent update): když entitu mezitím změnil někdo jiný, mutace se odmítne.
 
-**3. Publikace na npm (31. 5.)**
+**2. Publikace na npm (31. 5.)**
 Šest commitů `token` až `token6`. Publikace balíčku přes GitHub Actions opakovaně padala na konfiguraci `package.json` a přístupovém tokenu. **Řešení:** postupné ladění metodou pokus–omyl (název/verze balíčku, závislosti, token), dokud workflow neprošlo.
 
-**4. Slepá ulička: první `EventInvitationGQLModel` (14. 4. → 13. 5.)**
+**3. Slepá ulička: první `EventInvitationGQLModel` (14. 4. → 13. 5.)**
 První verze modelu pozvánek vznikla „na divoko" mimo strukturu šablony (soubory přímo v kořeni modelu, bez Pages/Components/Queries). Nedařilo se ji rozumně napojit na zbytek aplikace, proto byla 13. 5. **celá smazána** a 1. 6. postavena znovu a pořádně podle struktury šablony.
 
-**5. Zbytečný `StateMachineGQLModel` (2. 6. → 6. 6.)**
+**4. Zbytečný `StateMachineGQLModel` (2. 6. → 6. 6.)**
 Pro práci se stavy účasti jsem si vygeneroval celý model stavového automatu, ale ukázalo se, že ho vůbec nepotřebuji – stavy jdou číst přímo z pozvánek a jejich sémantika se dá určit heuristikou podle názvu (`stateHelpers.js`: potvrzeno/odmítnuto/čeká). **Řešení:** celý model smazat a nechat jen malý pomocný soubor.
 
-**7. „utery_nanovo" (14. 4.)**
+**5. „utery_nanovo" (14. 4.)**
 Ztracená/rozbitá úterní práce, kterou bylo nutné udělat znovu. Od té doby commituju častěji.
+
+**6. "You are not organizer"(19.7)**
+"Potřebujete vytvořit událost, na které ty osoby zvete, a tím se stanete organizer". Jenomže v souboru `EventInvitationGQLModel.py`, který jsem si stáhl z dockeru gqlOffice je NATVRDO stanovené id organizera, tedy "Pokud je to tenhle state, pak jsi organizer". Musím si vytvořit pozvánku, ve které jsem organizátor. Musel jsem na backendu `pgAdmin 4` vložit natvrdo stanovené ID organizera, až v tento moment mi po refreshi stránky fungovaly mutace, které tuto roli vyžadovaly.
+
+`EventInvitationGQLModel.py`
+
+
+async def event_invitation_update
+(organizer_id = IDType("3265a488-bbfa-4c59-946c-7a7b059ee4f0")
 
 ---
 
@@ -116,5 +136,4 @@ Ztracená/rozbitá úterní práce, kterou bylo nutné udělat znovu. Od té dob
 - **Voyager** nejrychlejší cesta, jak pochopit GraphQL schéma
 - **Fragmenty řídí queries**: v link queries definuji fragmentem, co chci vrátit, a komponenty (`MediumContent`, `MediumEditableContent`) to jen zobrazí. Úprava fragmentu = úprava celé stránky.
 - Dvojice **`id` + `lastchange`** je základ všech mutací typu update/delete – bez ní backend změnu odmítne.
-- Základní typy atributů (string, integer, float, boolean…) mapuji na vstupní prvky formuláře: textové pole, číselné pole, datové pole, checkbox, radiobutton.
-- Šablona `_template` obsahuje předpřipravené funkce 
+- Úuprava backendu řeší polovinu problémů
