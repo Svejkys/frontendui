@@ -108,19 +108,19 @@ Program měl v sobě další skvělou supr čupr funkci, která mi byla naprosto
 `neuspesny pokus o mutace`. V `UpdateAsyncAction.jsx` byla omylem použita mutace pro jiný typ entity, takže update `EventGQLModel` nefungoval. 
 **Řešení:** přepsat mutaci správně – `eventUpdate($id: UUID!, $lastchange: DateTime!, $name, $nameEn, $description)`. Klíčové bylo pochopit roli parametrů **`id` a `lastchange`** – `lastchange` chrání před souběžnými updaty (concurrent update): když entitu mezitím změnil někdo jiný, mutace se odmítne.
 
-**3. Publikace na npm (31. 5.)**
+**2. Publikace na npm (31. 5.)**
 Šest commitů `token` až `token6`. Publikace balíčku přes GitHub Actions opakovaně padala na konfiguraci `package.json` a přístupovém tokenu. **Řešení:** postupné ladění metodou pokus–omyl (název/verze balíčku, závislosti, token), dokud workflow neprošlo.
 
-**4. Slepá ulička: první `EventInvitationGQLModel` (14. 4. → 13. 5.)**
+**3. Slepá ulička: první `EventInvitationGQLModel` (14. 4. → 13. 5.)**
 První verze modelu pozvánek vznikla „na divoko" mimo strukturu šablony (soubory přímo v kořeni modelu, bez Pages/Components/Queries). Nedařilo se ji rozumně napojit na zbytek aplikace, proto byla 13. 5. **celá smazána** a 1. 6. postavena znovu a pořádně podle struktury šablony.
 
-**5. Zbytečný `StateMachineGQLModel` (2. 6. → 6. 6.)**
+**4. Zbytečný `StateMachineGQLModel` (2. 6. → 6. 6.)**
 Pro práci se stavy účasti jsem si vygeneroval celý model stavového automatu, ale ukázalo se, že ho vůbec nepotřebuji – stavy jdou číst přímo z pozvánek a jejich sémantika se dá určit heuristikou podle názvu (`stateHelpers.js`: potvrzeno/odmítnuto/čeká). **Řešení:** celý model smazat a nechat jen malý pomocný soubor.
 
-**7. „utery_nanovo" (14. 4.)**
+**5. „utery_nanovo" (14. 4.)**
 Ztracená/rozbitá úterní práce, kterou bylo nutné udělat znovu. Od té doby commituju častěji.
 
-**"You are not organizer"(19.7)**
+**6. "You are not organizer"(19.7)**
 "Potřebujete vytvořit událost, na které ty osoby zvete, a tím se stanete organizer". Jenomže v souboru `EventInvitationGQLModel.py`, který jsem si stáhl z dockeru gqlOffice je NATVRDO stanovené id organizera, tedy "Pokud je to tenhle state, pak jsi organizer". Musím si vytvořit pozvánku, ve které jsem organizátor. Musel jsem na backendu `pgAdmin 4` vložit natvrdo stanovené ID organizera, až v tento moment mi po refreshi stránky fungovaly mutace, které tuto roli vyžadovaly.
 
 `EventInvitationGQLModel.py`
