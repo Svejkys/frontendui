@@ -89,13 +89,18 @@ Aktualizace verze balíčku na npm.
 **16. 7. 2026** –  „Možnost uložení provedení změn"
 Poslední velká funkce: změny v docházkové matici se **neukládají po jedné, ale hromadně** – neuložené výběry se drží v mapě `pendingChanges` (`invitationId → stateId`) a odešlou se najednou tlačítkem Uložit. Přibyla query `AttendanceStatesReadAsyncAction` pro načtení stavů docházkového stavového automatu. Při tom byl vyřešen poslední záludný problém s ručním dispatchem AsyncAction.
 
-**16. 7. 2026** –  „Odstranění zbytečných řádků kódu"
+**18. 7. 2026** –  „Odstranění zbytečných řádků kódu"
 Všiml jsem si, že je program díky chybám, které jsem v průběhu vytváření programů dělal, zbytečně velký.
 Refresh stránky přepíše rbacobject celý. Po úpravě by se už neměli stackovat výpisy rolí na stránku.
 Odstranil jsem zbytečný UserSearch.jsx v EventInvitationGQLModel. Jeho identická a funkční verze je v StudyPlanGQLModel.
 Přidání nezbytných komentářů do kódu, který na funkčnosti hraje největší roli, aby bylo srozumitelné, co program Dělá
 
----
+**19. 7. 2026** – „Pilování programu"
+Program měl v sobě další skvělou supr čupr funkci, která mi byla naprosto k ničemu. Měl jsem možnost Přidat studenta v editable režimu znovu, i když už tam mutace pro to je vytvořena. Tato funkce byla odstraněna a význam mutace Upravit tedy spočívá ve změně State jednotlivých studentů na danou výuku, jak bylo zamýšleno. Jako další významná úprava bylo přidání plánovacího administrátora natvrdo do systemdata.hk2026. Před touto akcí byla nutnost v GraphiQL nonstop insertovat tuto roli do kódu pokaždé, co se vypl Docker.
+
+> *Úpravy proběhly v souboru `MediumEditableContent.jsx` a `systemdata.hk2026.json`*
+> *Podařilo se mi získat roli organizera*
+
 
 ## Problémy, které se nedařilo řešit – a jak byly nakonec vyřešeny
 
@@ -114,6 +119,13 @@ Pro práci se stavy účasti jsem si vygeneroval celý model stavového automatu
 
 **7. „utery_nanovo" (14. 4.)**
 Ztracená/rozbitá úterní práce, kterou bylo nutné udělat znovu. Od té doby commituju častěji.
+
+**"You are not organizer"(19.7)**
+"Potřebujete vytvořit událost, na které ty osoby zvete, a tím se stanete organizer". Jenomže v souboru `EventInvitationGQLModel.py`, který jsem si stáhl z dockeru gqlOffice je NATVRDO stanovené id organizera, tedy "Pokud je to tenhle state, pak jsi organizer". Musím si vytvořit pozvánku, ve které jsem organizátor. Musel jsem na backendu `pgAdmin 4` vložit natvrdo stanovené ID organizera, až v tento moment mi po refreshi stránky fungovaly mutace, které tuto roli vyžadovaly.
+
+`EventInvitationGQLModel.py`
+async def event_invitation_update
+(organizer_id = IDType("3265a488-bbfa-4c59-946c-7a7b059ee4f0")
 
 ---
 
