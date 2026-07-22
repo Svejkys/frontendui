@@ -100,6 +100,12 @@ Program měl v sobě další skvělou supr čupr funkci, která mi byla naprosto
 
 > *Úpravy proběhly v souboru `MediumEditableContent.jsx` a `systemdata.hk2026.json`*
 > *Podařilo se mi získat roli organizera*
+
+
+
+
+
+
 **22. 7. 2026** – „Pilování programu"
 Poslední kosmetické úpravy před zkouškou.
 
