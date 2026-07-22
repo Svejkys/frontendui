@@ -4,6 +4,8 @@ import { ProxyLink } from "../../../../_template/src/Base/Components/ProxyLink"
 import { DeleteButton } from "./Delete"
 import { AddStudentButton } from "./AddStudentButton"
 import { RemoveStudentButton } from "./RemoveStudentButton"
+import { GenerateDataButton } from "../../DevTools/GenerateDataButton"
+import { BecomeOrganizerButton } from "../../DevTools/BecomeOrganizerButton"
 
 export const PageLink = ({ children, preserveHash = true, preserveSearch = true, ...props }) => {
     return (
@@ -24,6 +26,8 @@ export const InteractiveMutations = ({ item }) => {
             <UpdateLink className="btn btn-outline-success" item={item}>Upravit</UpdateLink>
             <AddStudentButton className="btn btn-outline-success" rbacitem={{}} item={item}>Přidat studenta</AddStudentButton>
             <RemoveStudentButton className="btn btn-outline-danger" rbacitem={{}} item={item}>Odstranit studenta</RemoveStudentButton>
+            <GenerateDataButton className="btn btn-outline-primary" item={item}>Vygenerovat data</GenerateDataButton>
+            <BecomeOrganizerButton className="btn btn-outline-secondary" item={item}>Stát se organizátorem</BecomeOrganizerButton>
         </CardCapsule>
     )
 }

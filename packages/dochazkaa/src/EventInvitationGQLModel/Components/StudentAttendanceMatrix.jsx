@@ -1,10 +1,56 @@
 import { useMemo } from "react"
+import { createQueryStrLazy } from "@hrbolek/uoisfrontend-gql-shared"
 import { CardCapsule } from "../../EventGQLModel/Components/CardCapsule"
 import { MatrixCell } from "./MatrixCell"
 import { collectAvailableStates, classifyState } from "./stateHelpers"
+import { createAsyncGraphQLAction2 } from "../../../../dynamic/src/Core/createAsyncGraphQLAction2"
+import { useAsyncThunkAction } from "../../../../dynamic/src/Hooks/useAsyncThunkAction"
 import { formatLectureShort } from "./datetime"
 import { UserLink } from "../../../../ug/src/Components/User/UserLink"
 import { Link as StudyPlanLink } from "../../StudyPlanGQLModel/Components/Link"
+ 
+/**
+ * Dotaz na VŠECHNY stavy – ať máme jejich názvy vždy k dispozici a `classifyState`
+ * je pozná (i když přijdeme na stránku z jiné stránky, kde stav neměl načtené jméno).
+ */
+const AllStatesQueryStr = `
+query allStatesForMatrix($skip: Int, $limit: Int) {
+  statePage(skip: $skip, limit: $limit) {
+    __typename
+    id
+    name
+    nameEn
+    order
+    statemachineId
+    statemachine { __typename id name }
+  }
+}
+`
+const AllStatesReadAsyncAction = createAsyncGraphQLAction2(createQueryStrLazy(`${AllStatesQueryStr}`))
+ 
+/** Ze všech stavů vybere ty patřící docházkovému automatu (podle názvu / pokrytí ✓✕•). */
+const selectAttendanceStates = (allStates = []) => {
+    const byMachine = new Map()
+    for (const s of allStates) {
+        const mid = s?.statemachineId
+        if (!mid) continue
+        if (!byMachine.has(mid)) byMachine.set(mid, { name: s?.statemachine?.name || "", states: [] })
+        byMachine.get(mid).states.push(s)
+    }
+    let best = null
+    let bestScore = -1
+    for (const { name, states } of byMachine.values()) {
+        const kinds = new Set(states.map((st) => classifyState(st)))
+        const coverage = ["confirmed", "declined", "pending"].filter((k) => kinds.has(k)).length
+        const nameMatch = /docház|dochaz|attend|účast|ucast/i.test(name) ? 3 : 0
+        const score = nameMatch + coverage
+        if (score > bestScore || (score === bestScore && best && states.length > best.length)) {
+            bestScore = score
+            best = states
+        }
+    }
+    return best || []
+}
  
 /**
 DOCHÁZKOVÁ MATICE — rámeček "DOCHÁZKA" na stránce studijního plánu.
@@ -28,11 +74,20 @@ export const StudentAttendanceMatrix = ({
     pendingChanges,
     onStage,
 }) => {
+    // Stavy načteme i přes statePage – tím mají vždy názvy a buňky se rozpoznají
+    // spolehlivě, i po přechodu z jiné stránky (kde stav neměl načtené jméno).
+    const { data: statesData } = useAsyncThunkAction(AllStatesReadAsyncAction, { skip: 0, limit: 500 })
+    const loadedStates = useMemo(
+        () => selectAttendanceStates(statesData?.data?.statePage || []),
+        [statesData]
+    )
+ 
     const availableStates = useMemo(() => {
         if (availableStatesProp?.length) return availableStatesProp
+        if (loadedStates.length) return loadedStates
         const all = events.flatMap((ev) => ev?.invitations || [])
         return collectAvailableStates(all)
-    }, [availableStatesProp, events])
+    }, [availableStatesProp, loadedStates, events])
  
     // Řádky matice: unikátní studenti
     const students = useMemo(() => {
@@ -91,9 +146,8 @@ export const StudentAttendanceMatrix = ({
     return (
         <CardCapsule item={{}} title={title}>
             <div className="d-flex flex-wrap gap-2 mb-2 small">
-                <span><span style={{ color: "#198754", fontWeight: "bold" }}>✓</span> potvrzeno</span>
-                <span><span style={{ color: "#dc3545", fontWeight: "bold" }}>✕</span> odmítnuto</span>
-                <span><span style={{ color: "#6c757d", fontWeight: "bold" }}>•</span> čeká</span>
+                <span>✅ potvrzeno</span>
+                <span>❌ odmítnuto</span>
             </div>
             <div style={{ overflowX: "auto" }}>
                 <table className="table table-sm table-bordered align-middle" style={{ tableLayout: "fixed", width: "auto" }}>

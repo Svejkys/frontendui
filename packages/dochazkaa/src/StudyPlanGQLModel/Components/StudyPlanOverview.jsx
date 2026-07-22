@@ -1,13 +1,15 @@
-import { useGQLEntityContext } from "../../../../_template/src/Base/Helpers/GQLEntityProvider"
+import { useMemo } from "react"
 import { StudentAttendanceMatrix } from "../../EventInvitationGQLModel/Components/StudentAttendanceMatrix"
-
+import { useAsyncThunkAction } from "../../../../dynamic/src/Hooks/useAsyncThunkAction"
+import { ReadAsyncAction } from "../Queries/ReadAsyncAction"
+ 
 /* Bezpečný převod hodnoty na Date. */
 const toDate = (value) => {
     if (!value) return null
     const date = new Date(value)
     return Number.isNaN(date.getTime()) ? null : date
 }
-
+ 
 /*
 seřadí lekce (stavební bloky) primárně podle `order`,
 sekundárně podle začátku události. Určuje pořadí sloupců matice.
@@ -20,7 +22,7 @@ const sortLessons = (lessons = []) => {
         return (toDate(a?.event?.startdate)?.getTime() ?? 0) - (toDate(b?.event?.startdate)?.getTime() ?? 0)
     })
 }
-
+ 
 /**
  * HLAVNÍ KOMPONENTA — tohle se vykresluje na view/:id.
  *
@@ -28,18 +30,22 @@ const sortLessons = (lessons = []) => {
  * seřadí stavební bloky → každá lekce se přemapuje na "událost" pro matici
  * (název lekce má přednost před názvem události, `userInvitations` se
  * přejmenují na `invitations`, jak to matice očekává) → matice vykreslí
- * studenty × výuky. `reRead` z GQL kontextu po každé změně znovu načte plán.
+ * studenty × výuky. Přehled si plán čte sám a kreslí z čerstvé odpovědi serveru.
  */
 export const StudyPlanOverview = ({ item }) => {
-    const { reRead } = useGQLEntityContext()
-    const lessons = sortLessons(item?.lessons || [])
-
+    // Přehled si plán natáhne SÁM a kreslí z čerstvé odpovědi serveru (`data`),
+    // ne ze storu (`item`), který po uložení docházky zůstává zastaralý.
+    // Díky tomu ukazuje po příchodu na stránku poslední uložené stavy.
+    const { data, run } = useAsyncThunkAction(ReadAsyncAction, { id: item?.id })
+    const freshItem = useMemo(() => data?.data?.studyPlanById || item, [data, item])
+    const lessons = sortLessons(freshItem?.lessons || [])
+ 
     return (
         <section className="study-plan-overview">
             <div className="study-plan-section-head">
                 <h3>Předmět a jeho hodiny v semestru</h3>
             </div>
-
+ 
             <div className="study-plan-lessons">
                 <StudentAttendanceMatrix
                     events={lessons.map((lesson) => ({
@@ -47,9 +53,9 @@ export const StudyPlanOverview = ({ item }) => {
                         name: lesson?.name || lesson?.event?.name,
                         invitations: lesson?.event?.userInvitations || [],
                     }))}
-                    onChanged={() => reRead?.()}
+                    onChanged={() => run?.()}
                     title="Docházka"
-                    studyPlan={item}
+                    studyPlan={freshItem}
                 />
             </div>
         </section>

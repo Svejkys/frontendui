@@ -121,17 +121,27 @@ Pro práci se stavy účasti jsem si vygeneroval celý model stavového automatu
 Ztracená/rozbitá úterní práce, kterou bylo nutné udělat znovu. Od té doby commituju častěji.
 
 **6. "You are not organizer"(19.7)**
-"Potřebujete vytvořit událost, na které ty osoby zvete, a tím se stanete organizer". Jenomže v souboru `EventInvitationGQLModel.py`, který jsem si stáhl z dockeru gqlOffice je NATVRDO stanovené id organizera, tedy "Pokud je to tenhle state, pak jsi organizer". Musím si vytvořit pozvánku, ve které jsem organizátor. Musel jsem na backendu `pgAdmin 4` vložit natvrdo stanovené ID organizera, až v tento moment mi po refreshi stránky fungovaly mutace, které tuto roli vyžadovaly.
+"Potřebujete vytvořit událost, na které ty osoby zvete, a tím se stanete organizer". Jenomže v souboru `EventInvitationGQLModel.py`, který jsem si stáhl z dockeru gqlOffice je NATVRDO stanovené id organizera, tedy "Pokud je to tenhle state, pak jsi organizer". Musím si vytvořit pozvánku, ve které jsem organizátor. Musel jsem na backendu `pgAdmin 4` vložit natvrdo stanovené ID organizera, až v tento moment mi po refreshi stránky fungovaly mutace, které tuto roli vyžadovaly. 
+
+**7. Chyba oprávnění při úpravě a mazání docházky (Organizer Error)**
+
+- **Problém:** Při pokusu o úpravu stavů docházky (`eventInvitationUpdate`) nebo smazání studenta (`eventInvitationDelete`) vyvolával backend chybu oprávnění, přestože operace u některých sloupců (výuk) fungovala normálně.
+- **Příčina:** Backend vyžaduje, aby uživatel provádějící změny byl organizátorem dané výuky. V systému je organizátor definován tím, že má u konkrétní události vytvořenou pozvánku se speciálním ID stavu organizátora (`ORGANIZER_STATE_ID = "3265a488-bbfa-4c59-946c-7a7b059ee4f0"`). U chybujících výuk tato organizátorská pozvánka přihlášenému uživateli chyběla.
+- **Řešení:** 
+  - Vytvořena nová React komponenta/tlačítko `BecomeOrganizerButton` (`packages/dochazkaa/src/DevTools/BecomeOrganizerButton.jsx`).
+  - Tlačítko načte ID přihlášeného uživatele pomocí hooku `useMe()`, projde všechny výuky daného plánu a jedním klikem automaticky vloží chybějící organizátorské pozvánky (`eventInvitationInsert`).
+  - Po udělení organizátorského stavu začaly korektně fungovat všechny operace úpravy i mazání na celé matici.
+    
 
 `EventInvitationGQLModel.py`
 
 
 async def event_invitation_update
-(organizer_id = IDType("3265a488-bbfa-4c59-946c-7a7b059ee4f0")
+organizer_id = IDType("3265a488-bbfa-4c59-946c-7a7b059ee4f0")
 
 ---
 
-## 💡 Co jsem během semestru objevil
+## Co jsem během semestru objevil
 
 - **Voyager** nejrychlejší cesta, jak pochopit GraphQL schéma
 - **Fragmenty řídí queries**: v link queries definuji fragmentem, co chci vrátit, a komponenty (`MediumContent`, `MediumEditableContent`) to jen zobrazí. Úprava fragmentu = úprava celé stránky.

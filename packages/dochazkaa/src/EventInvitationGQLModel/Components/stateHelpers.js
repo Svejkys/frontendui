@@ -77,7 +77,7 @@ export const stateSymbol = (state) => {
     switch (classifyState(state)) {
         case "confirmed": return "✓"
         case "declined": return "✕"
-        case "pending": return "•"
+        case "pending": return "?"
         default: return "?"
     }
 }

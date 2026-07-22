@@ -3,15 +3,57 @@ import { useDispatch } from "react-redux"
 import { UserInputSearch } from "./UserSearch"
 import { InsertAsyncAction as InsertInvitationAsyncAction } from "../../EventInvitationGQLModel/Queries/InsertAsyncAction"
 import { UpdateAsyncAction as UpdateInvitationAsyncAction } from "../../EventInvitationGQLModel/Queries/UpdateAsyncAction"
-import {
-    ATTENDANCE_STATEMACHINE_ID,
-    AttendanceStatesReadAsyncAction,
-} from "../../EventInvitationGQLModel/Queries/AttendanceStatesReadAsyncAction"
+import { createQueryStrLazy } from "@hrbolek/uoisfrontend-gql-shared"
+import { createAsyncGraphQLAction2 } from "../../../../dynamic/src/Core/createAsyncGraphQLAction2"
+import { classifyState } from "../../EventInvitationGQLModel/Components/stateHelpers"
 import { StudentAttendanceMatrix } from "../../EventInvitationGQLModel/Components/StudentAttendanceMatrix"
 import { useGQLEntityContext } from "../../../../_template/src/Base/Helpers/GQLEntityProvider"
 import { useAsyncThunkAction } from "../../../../dynamic/src/Hooks/useAsyncThunkAction"
 import { useGQLClient } from "../../../../dynamic/src/Store"
-
+ 
+/**
+ * Dotaz na VŠECHNY stavy v systému. Docházkový automat si najdeme sami,
+ * bez závislosti na pevném ID (které se po přeseedování DB mění).
+ */
+const AllStatesQueryStr = `
+query allStatesForEditor($skip: Int, $limit: Int) {
+  statePage(skip: $skip, limit: $limit) {
+    __typename
+    id
+    name
+    nameEn
+    order
+    statemachineId
+    statemachine { __typename id name }
+  }
+}
+`
+const AllStatesReadAsyncAction = createAsyncGraphQLAction2(createQueryStrLazy(`${AllStatesQueryStr}`))
+ 
+/** Ze všech stavů vybere ty patřící docházkovému automatu (podle názvu / pokrytí ✓✕•). */
+const selectAttendanceStates = (allStates = []) => {
+    const byMachine = new Map()
+    for (const s of allStates) {
+        const mid = s?.statemachineId
+        if (!mid) continue
+        if (!byMachine.has(mid)) byMachine.set(mid, { name: s?.statemachine?.name || "", states: [] })
+        byMachine.get(mid).states.push(s)
+    }
+    let best = null
+    let bestScore = -1
+    for (const { name, states } of byMachine.values()) {
+        const kinds = new Set(states.map((st) => classifyState(st)))
+        const coverage = ["confirmed", "declined", "pending"].filter((k) => kinds.has(k)).length
+        const nameMatch = /docház|dochaz|attend|účast|ucast/i.test(name) ? 3 : 0
+        const score = nameMatch + coverage
+        if (score > bestScore || (score === bestScore && best && states.length > best.length)) {
+            bestScore = score
+            best = states
+        }
+    }
+    return best || []
+}
+ 
 /**
  * Posbírá id všech událostí v načteném studijním plánu:
  * hlavní událost plánu (`eventId`/`event`) i událost každé lekce (`lessons[].eventId`/`event`).
@@ -25,7 +67,7 @@ const collectEventIds = (item) => {
     ].filter(Boolean)
     return [...new Set(ids)]
 }
-
+ 
 const sortLessons = (lessons = []) => {
     return [...lessons].sort((a, b) => {
         const orderA = a?.order ?? 9999
@@ -36,7 +78,7 @@ const sortLessons = (lessons = []) => {
         return dateA - dateB
     })
 }
-
+ 
 export const MediumEditableContent = ({ item, program, onSelect, onChange, children }) => {
     const dispatch = useDispatch()
     // AsyncAction má signaturu (vars, gqlClient) a bez klienta hodí výjimku;
@@ -47,32 +89,30 @@ export const MediumEditableContent = ({ item, program, onSelect, onChange, child
     const [saving, setSaving] = useState(false)
     const [message, setMessage] = useState(null)
     const [error, setError] = useState(null)
-
+ 
     // Neuložené výběry v matici: invitationId → stateId
     const [pendingChanges, setPendingChanges] = useState(() => new Map())
     const [savingAttendance, setSavingAttendance] = useState(false)
     const [attendanceMessage, setAttendanceMessage] = useState(null)
     const [attendanceError, setAttendanceError] = useState(null)
-
+ 
     const lessons = sortLessons(item?.lessons || [])
-
+ 
     const {
-        entity: statemachineFromStore,
         data: statesData,
         loading: statesLoading,
         error: statesError,
-    } = useAsyncThunkAction(AttendanceStatesReadAsyncAction, { id: ATTENDANCE_STATEMACHINE_ID })
-
-    // `entity` je normalizovaná entita z ItemSlice (tudy si ji bere i AsyncActionProvider).
-    // `data` je celá GraphQL odpověď včetně obalu `data` – gqlFetch vrací raw JSON
-    // a middleware ho posílá dál nezměněný, proto ta dvojitá `.data`.
-    const statemachine = statemachineFromStore || statesData?.data?.statemachineById
-
+    } = useAsyncThunkAction(AllStatesReadAsyncAction, { skip: 0, limit: 500 })
+ 
+    // Stavy docházky si najdeme dynamicky ze VŠECH stavů (statePage) a vybereme
+    // docházkový automat. Tím `availableStates` není prázdné ani u plánů, kde
+    // zatím žádná pozvánka stav nemá → dropdown pro úpravu se ukáže vždy.
     const availableStates = useMemo(() => {
-        const states = statemachine?.states || []
+        const all = statesData?.data?.statePage || []
+        const states = selectAttendanceStates(all)
         return [...states].sort((a, b) => (a?.order ?? 999) - (b?.order ?? 999))
-    }, [statemachine])
-
+    }, [statesData])
+ 
     // Pozvánky podle id – potřeba pro uložení (kvůli `lastchange`) i pro
     // rozpoznání, zda se výběr liší od uloženého stavu.
     const invitationsById = useMemo(() => {
@@ -84,7 +124,7 @@ export const MediumEditableContent = ({ item, program, onSelect, onChange, child
         }
         return byId
     }, [lessons])
-
+ 
     const handleSelect = (user) => {
         setSelectedUser(user)
         setMessage(null)
@@ -94,7 +134,7 @@ export const MediumEditableContent = ({ item, program, onSelect, onChange, child
         }
         if (onSelect) onSelect(user)
     }
-
+ 
     const handleOk = async () => {
         if (!selectedUser?.id) return
         const eventIds = collectEventIds(item)
@@ -119,7 +159,7 @@ export const MediumEditableContent = ({ item, program, onSelect, onChange, child
             setSaving(false)
         }
     }
-
+ 
     const handleStage = (invitationId, stateId) => {
         setAttendanceMessage(null)
         setAttendanceError(null)
@@ -132,31 +172,52 @@ export const MediumEditableContent = ({ item, program, onSelect, onChange, child
             return next
         })
     }
-
+ 
     const handleCancelAttendance = () => {
         setPendingChanges(new Map())
         setAttendanceMessage(null)
         setAttendanceError(null)
     }
-
+ 
     const handleSaveAttendance = async () => {
         if (pendingChanges.size === 0) return
         const changes = [...pendingChanges]
         setSavingAttendance(true)
         setAttendanceMessage(null)
         setAttendanceError(null)
+ 
+        // Mutace nevyhazuje výjimku – při zamítnutí vrací objekt s failed/…Error.
+        const isFailed = (res) =>
+            String(res?.__typename || "").endsWith("Error") || res?.failed === true
+ 
         try {
-            await Promise.all(
+            const results = await Promise.all(
                 changes.map(([invitationId, stateId]) =>
                     dispatch(UpdateInvitationAsyncAction({
                         id: invitationId,
                         lastchange: invitationsById.get(invitationId)?.lastchange,
                         stateId,
-                    }, gqlClient))
+                    }, gqlClient)).then(
+                        (res) => ({ ok: !isFailed(res), msg: res?.msg }),
+                        (err) => ({ ok: false, msg: err?.message })
+                    )
                 )
             )
+            const failed = results.filter((r) => !r.ok)
+            const okCount = results.length - failed.length
             setPendingChanges(new Map())
-            setAttendanceMessage(`Uloženo ${changes.length} změn.`)
+ 
+            if (failed.length === 0) {
+                setAttendanceMessage(`Uloženo ${okCount} změn.`)
+            } else {
+                const sample = failed[0]?.msg || "neznámá chyba"
+                if (okCount > 0) setAttendanceMessage(`Uloženo ${okCount}, neuloženo ${failed.length}.`)
+                setAttendanceError(
+                    /organizer/i.test(sample)
+                        ? `Neuloženo ${failed.length}: u těchto výuk nejsi organizátor – použij tlačítko „Stát se organizátorem“.`
+                        : `Neuloženo ${failed.length}: ${sample}`
+                )
+            }
             // Načte data znovu, aby buňky ukazovaly stav potvrzený serverem
             // (včetně nových `lastchange` pro další editaci).
             if (reRead) reRead()
@@ -166,14 +227,14 @@ export const MediumEditableContent = ({ item, program, onSelect, onChange, child
             setSavingAttendance(false)
         }
     }
-
+ 
     const statesUnavailable = !statesLoading && !statesError && availableStates.length === 0
-
+ 
     return (
         <>
            
             <hr className="my-4" />
-
+ 
             {statesLoading && <div className="text-muted mb-2">Načítám stavy docházky…</div>}
             {statesError && (
                 <div className="alert alert-danger">
@@ -204,7 +265,7 @@ export const MediumEditableContent = ({ item, program, onSelect, onChange, child
             </div>
             {attendanceMessage && <div className="alert alert-success">{attendanceMessage}</div>}
             {attendanceError && <div className="alert alert-danger">{attendanceError}</div>}
-
+ 
             <StudentAttendanceMatrix
                 events={lessons
                     .filter((lesson) => lesson?.event?.id)
@@ -219,7 +280,7 @@ export const MediumEditableContent = ({ item, program, onSelect, onChange, child
                 pendingChanges={pendingChanges}
                 onStage={handleStage}
             />
-
+ 
             {children}
         </>
     )
